@@ -111,10 +111,27 @@ The design and its reasoning are in [docs/design/eval-engine.md](docs/design/eva
 - **Write an environment:** the contract is in `src/core/types.ts`; see [docs/design/eval-engine.md](docs/design/eval-engine.md#environment-plugin).
 - **Developer notes:** [development](docs/development.md), [API](docs/api.md), [configuration](docs/configuration.md).
 
-## Contributing, security, citation, license
+## Citation
+
+If you use decision-bench, please cite it:
+
+```bibtex
+@software{peram2026decisionbench,
+  author  = {Peram, Jagadeeswara Reddy and {Fission Labs}},
+  title   = {decision-bench},
+  version = {0.1.0},
+  year    = {2026},
+  url     = {https://github.com/flabdev/decision-bench}
+}
+```
+
+Peram, J. R., & Fission Labs (2026). *decision-bench* (version 0.1.0). https://github.com/flabdev/decision-bench
+
+The same details are in [CITATION.cff](CITATION.cff), which also feeds GitHub's "Cite this repository" button in the sidebar.
+
+## Contributing, security, license
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) lists the checks: `bun run lint && bun run typecheck && bun test`.
 - [SECURITY.md](SECURITY.md) covers reporting and how keys are handled.
-- [CITATION.cff](CITATION.cff) feeds GitHub's "Cite this repository" button.
 - Development up to v0.1.0 happened in [jagadeeswara-reddy-p/jev-demos](https://github.com/jagadeeswara-reddy-p/jev-demos), which keeps the full history.
 - [MIT](LICENSE). Third-party models and the [JevBench](https://github.com/fstandhartinger/jevbench) data in `benchmarks/` keep their own terms.
