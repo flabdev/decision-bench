@@ -1,0 +1,18 @@
+{
+  "realtime-seed1": {
+    "events": 31889,
+    "sha256": "c63df9b3a6542aa984c51188d5f3810f1b87f11424df984b292139d51f6d778a"
+  },
+  "realtime-seed2": {
+    "events": 30639,
+    "sha256": "86ebe167f4ec1fab5f05599f68e54f0e759cee498619acd6d8d8401a5319542c"
+  },
+  "frozen-seed1": {
+    "events": 43776,
+    "sha256": "76b4999d8e3304df2c88d6c1d1a6e62299440dd01ed0dfd111ff42804bcae940"
+  },
+  "frozen-seed2": {
+    "events": 43182,
+    "sha256": "3acf47773d14687e3687da11063bafb9b3d294bfdc9a7b6eeebb1d6eb23eb8cf"
+  }
+}

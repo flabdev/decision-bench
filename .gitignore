@@ -1,0 +1,17 @@
+node_modules
+dist
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+runs/
+.DS_Store
+models.local.json
+.ec2-key.pem
+
+# personal benches stay local
+bench.yaml
+
+# internal notes, not part of the repo
+docs/superpowers/
+docs/posts/
