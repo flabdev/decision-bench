@@ -1,7 +1,7 @@
 # How it works
 
 The game, what every model is shown, how answers are judged, and what the screens mean.
-The [README](../README.md#how-the-test-works) has the short version.
+The [README](../README.md#how-the-environment-works) has the short version.
 
 **Names.** This page says **Live** and **Paused**. In `bench.yaml` and the logs
 they are `realtime` and `frozen`, and the page's Clock menu says Real time and

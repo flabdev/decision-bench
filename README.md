@@ -7,7 +7,7 @@
 
 In a live system, a late answer is as bad as a wrong one. decision-bench measures both: how well a model chooses, and whether its answer arrives in time.
 
-The first test is **Deadline Tetris**, where each piece keeps falling while the model thinks.
+The first **environment** (a game every model plays under the same rules) is **Deadline Tetris**, where each piece keeps falling while the model thinks.
 
 [![Six models playing Deadline Tetris](docs/media/demo-six-models.gif)](docs/media/demo-six-models.mp4)
 
@@ -59,7 +59,7 @@ bun run stats benchmarks/2026-10-17/tetris/*.jsonl
 
 Other rounds, including Claude Haiku 5.5, are in the [results history](docs/results-history.md). Why each model scores the way it does is in [findings](docs/findings.md).
 
-## How the test works
+## How the environment works
 
 1. A piece appears. The model gets the board and a numbered list of every place the piece can land.
 2. The model answers with one option.
@@ -99,12 +99,12 @@ Put your models in `bench.yaml` and their [keys](docs/configuration.md#built-in-
 
 - **No error bars yet.** Four games is enough to rank these six models, but not to separate models that score close together.
 - **Network time is included.** Every request came from one machine in India, which adds about 0.2–0.3 s.
-- **One test so far.** More are on the [roadmap](#roadmap).
+- **One environment so far.** More are on the [roadmap](#roadmap).
 
 ## Roadmap
 
 - **2D reasoning:** a board-only Tetris variant, where the model gets only rotations and columns and has to picture the result.
-- **Browser automation:** a second test, on the same engine.
+- **Browser automation:** a second environment, on the same engine.
 - **More models and more games,** with error bars on every number.
 - **Published results:** signed result bundles, and a results site with replays.
 

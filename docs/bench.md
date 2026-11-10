@@ -73,7 +73,7 @@ keys are an error, and every error names the field.
 | Field | Default | Meaning |
 |---|---|---|
 | `name` | required | Lowercase letters, digits and dashes, up to 40. Names the default output folder. |
-| `environment` | `tetris` | The game. Only `tetris` exists. |
+| `environment` | `tetris` | The environment to play. Only `tetris` (Deadline Tetris) exists so far. |
 | `seeds` | `5` | A number `n` means seeds 1 to n (up to 100). Or a list of 1 to 100 different whole numbers, 0 or more, such as `[7, 9]`. |
 | `clocks` | `[frozen, realtime]` | Any of `frozen` (turn timer paused) and `realtime` (live clock). |
 | `variants` | `[described]` | Rule variants. Tetris has `described` only. |
