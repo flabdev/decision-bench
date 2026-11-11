@@ -3,113 +3,125 @@
 [![CI](https://github.com/flabdev/decision-bench/actions/workflows/ci.yml/badge.svg)](https://github.com/flabdev/decision-bench/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Benchmark models on judgement and speed, separately, by making them play real-time games. 2D reasoning (a board-only variant) is coming.
+**Can a model make a good decision fast enough to act on it?**
 
-The first environment is *Deadline Tetris*, where pieces keep falling while the model thinks.
+In a live system, a late answer is as bad as a wrong one. decision-bench measures both: how well a model chooses, and whether its answer arrives in time.
 
-[![Six models playing Deadline Tetris at 6× speed](docs/media/demo-six-models.gif)](docs/media/demo-six-models.mp4)
+The first **environment** (a game every model plays under the same rules) is **Deadline Tetris**, where each piece keeps falling while the model thinks.
 
-*Seed 1, real-time clock, 6× speed. Click for the full recording.*
+[![Six models playing Deadline Tetris](docs/media/demo-six-models.gif)](docs/media/demo-six-models.mp4)
 
-## Latest results
+*Six models play the same pieces side by side, sped up 6×. Click for the video.*
+
+## Results
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-dark.svg">
-  <img alt="Benchmark results: judgement, speed and pieces landed in real time" src="docs/media/results-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-choices-dark.svg">
+  <img alt="Good-move rate against typical answer time, one mark per model" src="docs/media/results-choices-light.svg">
 </picture>
 
-Deadline Tetris v3, 2026-10-28. Four models and the reference heuristic, 3 seeds on each clock: on the frozen clock every model places the same 40 pieces, so it measures judgement alone; in real time the pieces keep falling for 2 minutes while the model thinks. No confidence intervals yet.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-pieces-dark.svg">
+  <img alt="Pieces placed in time per live game, one bar per model" src="docs/media/results-pieces-light.svg">
+</picture>
 
-| Model | Type | Agreement with heuristic (frozen) | Lines in 40 pieces (frozen) | Median answer | Pieces landed (real time) | Too late (real time) | Cost |
-|---|---|---|---|---|---|---|---|
-| Jev | decision model | 50% | 8.0 | 281 ms | 86.7 | 0% | $0.03 |
-| Claude Haiku 5.5 | language model | 54% | 12.3 | 1.9 s | 46.0 | 3% | $0.07 |
-| GPT-6.1 Sol | language model | 69% | 12.3 | 2.4 s | 21.0 | 32% | $0.95 |
-| Claude Opus 5.5 | language model | 78% | 12.7 | 5.8 s | 12.7 | 46% | $3.44 |
-| Heuristic (reference) | baseline | 100% | 14.7 | 3 ms | 168.7 | 0% | — |
+**Jev is the only model that is both fast and accurate, so it places the most pieces.** The language models choose well but answer too slowly. The small open decision models answer fast but choose poorly.
 
-Averages over the 3 seeds; median answer over every answer; cost for all six games ($4.48 in total).
+<details>
+<summary>Full numbers and what they mean</summary>
 
-**Agreement with heuristic** is the share of answers that picked the reference heuristic's top option ([how it works](docs/how-it-works.md#move-quality-best-moves)). The heuristic is a yardstick, not the truth.
+| Model | Type | Good-move rate (higher is better) | Typical answer time (lower is better) | Pieces placed in time (higher is better) | Answers too late (lower is better) | Cost for 4 games |
+|---|---|---|---|---|---|---|
+| Jev | decision model | 59% | 289 ms | **118.8** | 0% | $0.03 |
+| Cloudflare Clef | decision model | 48% | 438 ms | 69.3 | <1% | $0.11 |
+| GPT-6.1 Sol | language model | 72% | 2.04 s | 23.3 | 13% | $0.48 |
+| Strands Decider | decision model | 15% | 435 ms | 21.0 | 1% | self-hosted |
+| Laya | decision model | 7% | 452 ms | 20.5 | 0% | self-hosted |
+| Claude Opus 5.5 | language model | **79%** | 5.14 s | 9.5 | 46% | $1.02 |
 
-The slower models choose better on the frozen clock, but in real time more of their answers arrive after the piece has landed, so they land fewer pieces.
+- **Good-move rate:** how often the model picked the best spot, as scored by a standard Tetris evaluator. Late answers are graded too, so speed doesn't affect this number.[^grading]
+- **Typical answer time:** the median time from showing the piece to getting the answer.
+- **Pieces placed in time:** pieces that went where the model chose, because its answer arrived before the piece landed.
+- **Answers too late:** the share of pieces that landed before the model answered.
 
-The logs are in [benchmarks/2026-10-28](benchmarks/README.md); `bun bench chart benchmarks/2026-10-28/bench` redraws the chart and `bun run stats benchmarks/2026-10-28/bench/*.jsonl` prints every number. Earlier rounds are in the [results history](docs/results-history.md) and [findings](docs/findings.md).
+Four Live games per model, averaged. Each game was stopped once four of the six boards had filled up.
 
-## Quick start (no keys)
+</details>
 
-Needs [Bun](https://bun.sh) 1.4 or later.
+[^grading]: The evaluator only looks at the current piece, so a model that plans ahead can lose a point for a better move. Read it as a yardstick, not the truth. [How answers are judged](docs/how-it-works.md#how-each-answer-is-judged).
+
+Recompute everything from the raw logs in [benchmarks/](benchmarks/README.md):
+
+```sh
+bun bench chart benchmarks/2026-10-17/tetris --out docs/media/results
+bun run stats benchmarks/2026-10-17/tetris/*.jsonl
+```
+
+Other rounds, including Claude Haiku 5.5, are in the [results history](docs/results-history.md). Why each model scores the way it does is in [findings](docs/findings.md).
+
+## How the environment works
+
+1. A piece appears. The model gets the board and a numbered list of every place the piece can land.
+2. The model answers with one option.
+3. If the answer arrives before the piece lands, the piece goes there. If not, the piece lands wherever it falls.
+
+In Live games the pieces fall faster every 15 seconds, so there is less and less time to answer.
+
+| Mode | While the model thinks | What it shows |
+|---|---|---|
+| **Live** | the piece keeps falling | can the model choose well *and* in time? |
+| **Paused** | the game waits (up to 30 s) | can the model choose well at all? |
+
+Every model gets the same pieces, the same prompt and the same options. Rules and timings are in [how it works](docs/how-it-works.md).
+
+## Try it
+
+Needs [Bun](https://bun.sh) 1.4 or later. The demo uses mock models, so it needs no API keys:
 
 ```sh
 git clone https://github.com/flabdev/decision-bench && cd decision-bench
 bun install
-bun bench demo      # six mock models, no API calls; finishes in about a second
+bun bench demo
 ```
 
-## Benchmark your models
+To test your own models:
 
 ```sh
-bun bench init      # writes bench.yaml and .env from the examples
+bun bench init      # creates bench.yaml and .env
 bun bench doctor    # checks each model and its key
-bun bench run       # plays the bench and writes the logs
+bun bench run       # plays the games
+bun bench chart runs/bench/<name>    # draws the two charts next to the logs
 ```
 
-`bun bench chart runs/bench/<name>` draws the comparison chart.
+Put your models in `bench.yaml` and their [keys](docs/configuration.md#built-in-models) in `.env`. To watch a game in the browser, run `bun dev` and open http://localhost:5317. Full reference: [docs/bench.md](docs/bench.md).
 
-Edit `bench.yaml` to choose models, seeds, clocks and stop rule. The example
-uses mock models only; for a live model, put its key in `.env` ([keys](#keys-env)).
-Both files are git-ignored. Reference: [docs/bench.md](docs/bench.md).
+## Limitations
 
-## What it measures
-
-Run both clocks on the same seed.
-
-| | Real time | Frozen |
-|---|---|---|
-| While a model thinks | pieces keep falling | the game waits |
-| An answer counts if | it arrives before the piece locks | it arrives within 30 s |
-| What it measures | is the model fast enough for a live loop? | does the model place pieces well? |
-
-- In `bun bench`, a frozen match gives every board the same number of pieces (`tetris.frozenPieces`, 100 by default; a frozen `sprint40` uses `tetris.maxPieces`) and has no early stop. On the page, a frozen run still stops at the time limit.
-- Every board gets the same pieces in the same order, the same prompt and the same rules. Real-time matches share one clock.
-- **Coming:** a board-only variant, to test 2D reasoning on its own. See [how it works](docs/how-it-works.md).
-
-## Watch it in the page
-
-```sh
-bun dev             # http://localhost:5317
-```
-
-Press **Models**, tick up to six models, press **Test** on any model for one real move, then **Start live run**. The **Line-up** menu has mock line-ups that need no keys. **Load log** replays a saved `.jsonl` run log.
-
-### Keys (`.env`)
-
-| Model | Set in `.env` |
-|---|---|
-| Jev | `TYPESAFE_API_KEY` |
-| Cloudflare Clef | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (Workers AI permission) |
-| GPT-6.1 Sol, Claude Opus 5.5, Claude Haiku 5.5 (AWS Bedrock) | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` or `AWS_PROFILE`; `AWS_REGION` (default `us-east-1`) |
-| Any OpenAI-compatible chat model | `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, or add it in the Models panel |
-| Laya, Strands Decider | `LAYA_BASE_URL`, `STRANDS_BASE_URL`; `deploy/ec2/launch.sh` sets them |
-
-Restart `bun dev` after editing `.env`. Keys stay on the server; the page never receives them. The server listens on `127.0.0.1` unless `HOST` is set.
-
-Page-added models are saved in `models.local.json` (git-ignored). Laya and Strands Decider run on a GPU that costs money while it is up; [docs/self-hosting.md](docs/self-hosting.md) covers it.
+- **No error bars yet.** Four games is enough to rank these six models, but not to separate models that score close together.
+- **Network time is included.** Every request came from one machine in India, which adds about 0.2–0.3 s.
+- **One environment so far.** More are on the [roadmap](#roadmap).
 
 ## Roadmap
 
-- **2D reasoning:** a board-only Tetris variant, where options give only rotation and columns, so the model has to picture the result.
-- **Browser automation:** the second environment, on the same engine, adapters and logs.
-- **More evals and models:** more environments, more seeds and confidence intervals on every number.
-- **Published results:** signed results bundles and a results site with replays.
+- **2D reasoning:** a board-only Tetris variant, where the model gets only rotations and columns and has to picture the result.
+- **Browser automation:** a second environment, on the same engine.
+- **More models and more games,** with error bars on every number.
+- **Published results:** signed result bundles, and a results site with replays.
 
-The design and its reasoning are in [docs/design/eval-engine.md](docs/design/eval-engine.md).
+The design is in [docs/design/eval-engine.md](docs/design/eval-engine.md).
 
-## Extend it
+## Documentation
 
-- **Add a model:** [docs/models.md](docs/models.md). **Write an adapter:** [docs/models.md](docs/models.md#writing-a-new-adapter).
-- **Write an environment:** the contract is in `src/core/types.ts`; see [docs/design/eval-engine.md](docs/design/eval-engine.md#environment-plugin).
-- **Developer notes:** [development](docs/development.md), [API](docs/api.md), [configuration](docs/configuration.md).
+| Page | What's in it |
+|---|---|
+| [How it works](docs/how-it-works.md) | Rules, timings, the prompt, how answers are judged |
+| [Findings](docs/findings.md) | Why each model scores the way it does |
+| [Results history](docs/results-history.md) | Every round, including JevBench |
+| [bun bench](docs/bench.md) | Every command and `bench.yaml` setting |
+| [Models](docs/models.md) | Adding a model or writing an adapter |
+| [Configuration](docs/configuration.md) | Keys, prices and server settings |
+| [Self-hosting](docs/self-hosting.md) | Running Laya and Strands Decider on a GPU |
+| [Development](docs/development.md) · [API](docs/api.md) | Code layout, tests and the server API |
 
 ## Citation
 
@@ -127,7 +139,7 @@ If you use decision-bench, please cite it:
 
 Peram, J. R., & Fission Labs (2026). *decision-bench* (version 0.1.0). https://github.com/flabdev/decision-bench
 
-The same details are in [CITATION.cff](CITATION.cff), which also feeds GitHub's "Cite this repository" button in the sidebar.
+The same details are in [CITATION.cff](CITATION.cff), which also feeds GitHub's "Cite this repository" button.
 
 ## Contributing, security, license
 

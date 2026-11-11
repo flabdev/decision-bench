@@ -5,6 +5,9 @@ which models, how many seeds, which clocks, and when a match stops. It checks
 every model, plays the matches one at a time, and writes the same game logs the
 page writes. The page is only needed to watch a replay.
 
+In `bench.yaml` the two modes are `realtime` (called **Live** in the README) and
+`frozen` (**Paused**); a match is one game.
+
 - [Quick start](#quick-start)
 - [Commands](#commands)
 - [bench.yaml](#benchyaml)
@@ -17,7 +20,7 @@ page writes. The page is only needed to watch a replay.
 ## Quick start
 
 ```sh
-bun bench demo      # six mock models, no keys, well under a second
+bun bench demo      # six mock models, no keys, about a second
 bun bench init      # writes bench.yaml and .env from the examples
 bun bench doctor    # checks each model; one real call per live model
 bun bench run       # plays the bench; asks first when it uses live models
@@ -70,7 +73,7 @@ keys are an error, and every error names the field.
 | Field | Default | Meaning |
 |---|---|---|
 | `name` | required | Lowercase letters, digits and dashes, up to 40. Names the default output folder. |
-| `environment` | `tetris` | The game. Only `tetris` exists. |
+| `environment` | `tetris` | The environment to play. Only `tetris` (Deadline Tetris) exists so far. |
 | `seeds` | `5` | A number `n` means seeds 1 to n (up to 100). Or a list of 1 to 100 different whole numbers, 0 or more, such as `[7, 9]`. |
 | `clocks` | `[frozen, realtime]` | Any of `frozen` (turn timer paused) and `realtime` (live clock). |
 | `variants` | `[described]` | Rule variants. Tetris has `described` only. |
@@ -205,52 +208,51 @@ as an estimate, not a forecast.
 
 ## Charting results
 
-`bun bench chart` draws a finished bench as an SVG chart. Pass it the bench's
+`bun bench chart` draws a finished bench as two SVG charts. Pass it the bench's
 output folder:
 
 ```sh
 bun bench chart runs/bench/<name>
 ```
 
-It writes two files, one light and one dark, and prints one line per model and
-the `<picture>` snippet for the README.
+It writes four files (each chart in light and dark), then prints one line per
+model and a `<picture>` snippet for each chart, ready for the README.
 
 | Flag | Meaning |
 |---|---|
 | `<folder>` | Required. The output folder, with its `.jsonl` logs. |
-| `--out prefix` | Where the two files go. Default `docs/media/results`, which writes `docs/media/results-light.svg` and `docs/media/results-dark.svg`. A value that ends in `/`, or names an existing folder, is a folder: the files go in it as `results-light.svg` and `results-dark.svg`. Paths are relative to the repository root, where `bun bench` always runs. |
+| `--out prefix` | Where the files go. By default they go next to the logs: `<folder>/results-choices-light.svg`, `results-choices-dark.svg`, `results-pieces-light.svg` and `results-pieces-dark.svg`. A value that ends in `/`, or names an existing folder, is a folder: the files go in it with those names. To redraw the README's charts, pass `--out docs/media/results`. Paths are relative to the repository root, where `bun bench` always runs. |
 | `--allow-mock` | Draw a bench that has a mock model (see below). Without it, `chart` refuses. |
 
-**Panels.** Rows are the models, ordered by real-time pieces landed, most first.
-The reference (heuristic) row is last. The order is the same in every panel.
+**The two charts.** Baseline models (`heuristic`, `random`) are yardsticks, not
+entrants, so both charts leave them out.
 
-| Panel | Shows | How it is averaged |
+| Chart | Shows | How it is averaged |
 |---|---|---|
-| Judgement | Agreement with the heuristic on frozen matches: the share of graded answers ranked 1 by the heuristic. | Per-seed mean: one value per seed, then the mean of those. |
-| Speed | Median answer time. Shorter is faster. | Pooled median of every answer latency, all matches. |
-| Real time | Pieces landed per real-time game, with `· N% late` when at least 1% of the real-time pieces were not placed by decision. | Per-seed mean of pieces landed by decision. The late share is pooled over every real-time piece. |
+| `choices`: good choices vs. fast answers | One mark per model: good-move rate (0–100%, higher is better) against typical answer time (log scale, faster is better). The best corner is top left. | Good-move rate: the mean per game, from Paused (`frozen`) games if there are any, otherwise from every Live answer. Answer time: the median over every answer. |
+| `pieces`: pieces placed in time | One bar per model, most first, with `· N% too late` when at least 1% of its pieces landed before the answer. | Mean per Live (`realtime`) game. The late share is pooled over every Live piece. |
 
-Colour shows the model kind: decision model, language model, or reference.
-Every row is also named, and every bar has its value.
+A blue circle is a decision model and an orange square a language model, so the
+kind never rests on colour alone. Display names come from `models.json` by model
+id, so a chart of old logs shows today's names.
 
-**Footer.** The footer states the environment and version, the number of seeds,
-the frozen pieces each model played, the real-time limit per game (in minutes
-when it is whole minutes, otherwise in seconds), the total cost, the date, and
-"no confidence intervals yet". A panel with no data (for example, a bench with
-no frozen matches) shows `—` for each row instead of bars.
+**Footer.** One line: the environment, the number of Live and Paused games (with
+the time limit or the pieces per game), any unfinished games left out, and "no
+error bars yet". If no model has a graded answer, the `choices` chart says so
+instead of drawing marks.
 
 **Unfinished logs.** A match log whose run never finished (its last line is not
 `run_finished`, for example because the run was stopped) is left out, not
 charted as a full game. `chart` prints `Left out N unfinished match logs:` with
-their file names, and the footer says how many matches were left out. A log
+their file names, and the footer says how many games were left out. A log
 whose last line is half written counts as unfinished. If every log is
 unfinished, `chart` says so and writes nothing.
 
 **Mock refusal.** A mock model's numbers are simulated, so `chart` refuses a
 bench that includes one and writes nothing. It prints "This bench includes mock
 models (ids); their numbers are simulated. Use --allow-mock to draw it anyway."
-and exits with 1. Baseline models (`heuristic`, `random`) are reference rows and
-are always drawn. With `--allow-mock`, each mock row is labelled "(mock)", and
+and exits with 1. Baseline models (`heuristic`, `random`) never trigger it, since
+the chart leaves them out. With `--allow-mock`, each mock model is labelled "(mock)", and
 the total cost leaves out the mock models' costs. To draw the demo, pass the
 flag:
 
@@ -259,14 +261,14 @@ bun bench demo
 bun bench chart runs/bench/demo --allow-mock
 ```
 
-**The picture snippet.** After the files are written, `chart` prints a
-`<picture>` element. The dark image is the source for dark mode, and the light
-image is the fallback:
+**The picture snippets.** After the files are written, `chart` prints one
+`<picture>` element per chart. The dark image is the source for dark mode, and
+the light image is the fallback:
 
 ```html
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-dark.svg">
-  <img alt="Benchmark results: judgement, speed and pieces landed in real time" src="docs/media/results-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-choices-dark.svg">
+  <img alt="Good-move rate against typical answer time, one mark per model" src="docs/media/results-choices-light.svg">
 </picture>
 ```
 
