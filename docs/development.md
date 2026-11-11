@@ -44,7 +44,7 @@ src/ui/                 React + canvas UI, theme, store; ModelsPanel.tsx and Mod
 deploy/ec2/             a short-lived GPU box serving Laya and Strands Decider (common.sh is shared by the scripts)
 benchmarks/             the published benchmark data (game logs and JevBench results), by date
 scripts/                stats.ts, smoke.ts, position-bias.ts (shuffle test), fake-providers.ts
-docs/                   how it works, findings, results history, bench, models, configuration, self-hosting, API,
+docs/                   how it works, findings, results, bench, models, configuration, self-hosting, API,
                         development; design/ (the eval-engine design); media/ (demo videos and result charts)
 runs/                   saved live runs (git-ignored)
 ```

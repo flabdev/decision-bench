@@ -3,10 +3,9 @@
 The game, what every model is shown, how answers are judged, and what the screens mean.
 The [README](../README.md#how-the-environment-works) has the short version.
 
-**Names.** This page says **Live** and **Paused**. In `bench.yaml` and the logs
-they are `realtime` and `frozen`, and the page's Clock menu says Real time and
-Frozen. A **seed** fixes one game's pieces, so seed 1 is game 1. The page and
-`bun run stats` label the **good-move rate** "Best moves".
+In `bench.yaml` and the logs, Live is `realtime` and Paused is `frozen`; the
+page's Clock menu says Real time and Frozen. A **seed** fixes one game's pieces.
+The page and `bun run stats` show the good-move rate as **Best moves**.
 
 ## How a run works
 
@@ -190,8 +189,6 @@ guessed from free text.
 
 ### Move quality (good-move rate)
 
-Older rounds call this best moves, or agreement with heuristic; it is the same number.
-
 Speed alone can't tell a slow model with good judgement from a bad one, so every
 answer is also graded. When a piece appears, the game scores every offered
 option with the **reference heuristic**. That's the classic hand-written
@@ -203,7 +200,7 @@ stored on its `decision` event as `bestRank` (1 = the heuristic's top pick).
 - **Late answers are graded too**, against the piece they were asked about. So speed doesn't affect this number.
 - Invalid answers, errors and timeouts aren't graded.
 - The heuristic is a yardstick, not the truth. It looks at one piece and ignores the next ones, so a model planning ahead can lose a point here for a move that's actually better. Treat a gap of a few points as noise.
-- `bun run stats` grades older logs (from before `bestRank` existed) the same way, from the logged board and options.
+- `bun run stats` grades logs without `bestRank` the same way, from the logged board and options.
 
 ## Reading the screen
 

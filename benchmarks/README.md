@@ -1,23 +1,23 @@
 # Benchmark data
 
-The raw logs behind the [README](../README.md#results) and the [results history](../docs/results-history.md), so anyone can check or recompute them.
+The raw logs behind the [README](../README.md#results) and the [results page](../docs/results.md), so anyone can check or recompute them.
 
 ## 2026-10-28
 
-**`bench/`**: a `bun bench run` on Deadline Tetris (rules version 3) of Jev, GPT-6.1 Sol, Claude Opus 5.5 and Claude Haiku 5.5, plus the heuristic as a yardstick. 3 Paused games (40 pieces each, `frozen` in the logs) and 3 Live games (2 minutes each, `realtime`).
+**`bench/`**: a `bun bench run` on Deadline Tetris of Jev, GPT-6.1 Sol, Claude Opus 5.5 and Claude Haiku 5.5, plus the heuristic as a yardstick. 3 Paused games (40 pieces each, `frozen` in the logs) and 3 Live games (2 minutes each, `realtime`).
 
 The folder holds one log per game, plus `bench.json` (the config as run, with every game's outcome and cost) and `settings.json`.
 
 ```sh
-bun bench chart benchmarks/2026-10-28/bench --out docs/media/results-2026-10-28   # the results-history charts
-bun run stats benchmarks/2026-10-28/bench/*.jsonl      # every number per match and per model
+bun bench chart benchmarks/2026-10-28/bench --out docs/media/results-2026-10-28   # the results-page charts
+bun run stats benchmarks/2026-10-28/bench/*.jsonl      # every number per game and per model
 ```
 
 All requests came from the same machine in India, through each provider's API (Bedrock in us-east-1 for GPT and Claude), so latencies include about 0.2–0.3 s of network. Total cost $4.48.
 
 ## 2026-10-17
 
-**`tetris/`**: the four Live games (games 1–4, six models), one event per line, exactly as the server logged them. Each game was stopped once four of the six boards had topped out. `bench.json` only records the date and environment, so `bun bench chart` can name them.
+**`tetris/`**: the four Live games (games 1–4, six models), one event per line, exactly as the server logged them. Each game was stopped once four of the six boards had topped out. `bench.json` records the date and the environment.
 
 ```sh
 bun bench chart benchmarks/2026-10-17/tetris --out docs/media/results   # the README charts (docs/media/results-*.svg)
