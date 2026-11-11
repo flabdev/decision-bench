@@ -19,30 +19,31 @@ The first **environment** (a game every model plays under the same rules) is **D
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-pieces-dark.svg">
-  <img alt="Pieces placed in time per live game, one bar per model" src="docs/media/results-pieces-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-decisions-dark.svg">
+  <img alt="Decisions per live run, split into correct and on time, other move, and too late" src="docs/media/results-decisions-light.svg">
 </picture>
 
-**Jev is the only model that is both fast and accurate, so it places the most pieces.** The language models choose well but answer too slowly. Laya and Strands Decider answer fast but choose poorly.
+**Jev is the only model that is both fast and accurate, so it makes the most correct decisions on time.** The language models choose well but answer too slowly. Laya and Strands Decider answer fast but choose poorly.
 
 <details>
 <summary>Full numbers and what they mean</summary>
 
-| Model | Type | Good-move rate (higher is better) | Typical answer time (lower is better) | Pieces placed in time (higher is better) | Answers too late (lower is better) | Cost for 4 games |
-|---|---|---|---|---|---|---|
-| Jev | decision model | 59% | 289 ms | **118.8** | 0% | $0.03 |
-| Cloudflare Clef | decision model | 48% | 438 ms | 69.3 | <1% | $0.11 |
-| GPT-6.1 Sol | language model | 72% | 2.04 s | 23.3 | 13% | $0.48 |
-| Strands Decider | decision model | 15% | 435 ms | 21.0 | 1% | self-hosted |
-| Laya | decision model | 7% | 452 ms | 20.5 | 0% | self-hosted |
-| Claude Opus 5.5 | language model | **79%** | 5.14 s | 9.5 | 46% | $1.02 |
+| Model | Type | Correct and on time, per run (higher is better) | Decisions per run | Good-move rate (higher is better) | Typical answer time (lower is better) | Too late (lower is better) | Cost for 4 runs |
+|---|---|---|---|---|---|---|---|
+| Jev | decision model | **70.8** (60%) | 118.8 | 59% | **289 ms** | 0% | $0.03 |
+| Cloudflare Clef | decision model | 34.3 (49%) | 69.8 | 48% | 438 ms | 1% | $0.11 |
+| GPT-6.1 Sol | language model | 17.3 (64%) | 26.8 | 72% | 2.04 s | 13% | $0.48 |
+| Claude Opus 5.5 | language model | 8.3 (46%) | 17.8 | **79%** | 5.14 s | 46% | $1.02 |
+| Strands Decider | decision model | 3.3 (15%) | 21.3 | 15% | 435 ms | 1% | self-hosted |
+| Laya | decision model | 1.5 (7%) | 20.5 | 7% | 452 ms | 0% | self-hosted |
 
+- **Correct and on time:** decisions where the model picked the best spot *and* its answer arrived before the piece landed. The count per run, and its share of all the model's decisions.
+- **Decisions per run:** the pieces the model had to place before its board filled up or the run ended. The longer a model keeps up, the more decisions it makes.
 - **Good-move rate:** how often the model picked the best spot, as scored by a standard Tetris evaluator. Late answers are graded too, so speed doesn't affect this number.[^grading]
 - **Typical answer time:** the median time from showing the piece to getting the answer.
-- **Pieces placed in time:** pieces that went where the model chose, because its answer arrived before the piece landed.
-- **Answers too late:** the share of pieces that landed before the model answered.
+- **Too late:** the share of decisions where the piece landed before the answer arrived.
 
-Four Live games per model, averaged. Each game was stopped once four of the six boards had filled up.
+Four Live runs per model, averaged. Every model played the same four runs, and each run stopped once four of the six boards had filled up.
 
 </details>
 
@@ -63,7 +64,7 @@ More results, including Claude Haiku 5.5, are on the [results page](docs/results
 2. The model answers with one option.
 3. If the answer arrives before the piece lands, the piece goes there. If not, the piece lands wherever it falls.
 
-In Live games the pieces fall faster every 15 seconds, so there is less and less time to answer.
+A **run** is one game from start to finish. Every model plays the same runs, with the same pieces in the same order. In Live runs the pieces fall faster every 15 seconds, so there is less and less time to answer.
 
 | Mode | While the model thinks | What it shows |
 |---|---|---|
@@ -87,15 +88,15 @@ To test your own models:
 ```sh
 bun bench init      # creates bench.yaml and .env
 bun bench doctor    # checks each model and its key
-bun bench run       # plays the games
+bun bench run       # plays the runs
 bun bench chart runs/bench/<name>    # draws the two charts next to the logs
 ```
 
-Put your models in `bench.yaml` and their [keys](docs/configuration.md#built-in-models) in `.env`. To watch a game in the browser, run `bun dev` and open http://localhost:5317. Full reference: [docs/bench.md](docs/bench.md).
+Put your models in `bench.yaml` and their [keys](docs/configuration.md#built-in-models) in `.env`. To watch a run in the browser, start `bun dev` and open http://localhost:5317. Full reference: [docs/bench.md](docs/bench.md).
 
 ## Limitations
 
-- **No error bars yet.** Four games is enough to rank these six models, but not to separate models that score close together.
+- **No error bars yet.** Four runs is enough to rank these six models, but not to separate models that score close together.
 - **Network time is included.** Every request came from one machine in India, which adds about 0.2–0.3 s.
 - **One environment so far.** More are on the [roadmap](#roadmap).
 
@@ -103,7 +104,7 @@ Put your models in `bench.yaml` and their [keys](docs/configuration.md#built-in-
 
 - **2D reasoning:** a board-only Tetris variant, where the model gets only rotations and columns and has to picture the result.
 - **Browser automation:** a second environment, on the same engine.
-- **More models and more games,** with error bars on every number.
+- **More models and more runs,** with error bars on every number.
 - **Published results:** signed result bundles, and a results site with replays.
 
 The design is in [docs/design/eval-engine.md](docs/design/eval-engine.md).

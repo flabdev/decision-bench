@@ -33,8 +33,20 @@ export interface ModelSummary {
   realtimeLanded: number | null;
   /** Share of realtime locks not byDecision, pooled over realtime matches, as a percentage; null without realtime matches. */
   tooLate: number | null;
+  /** Mean per realtime match of the model's decisions, split three ways; null without realtime matches. */
+  live: LiveDecisions | null;
   /** Sum of decision usage.costUsd, all matches. */
   costUsd: number;
+}
+
+/** One model's decisions in a realtime match: every piece it had to place, by what became of it. */
+export interface LiveDecisions {
+  /** Placed by an on-time answer that the heuristic ranks 1. */
+  correct: number;
+  /** Placed by an on-time answer of any other rank (or one that was not graded). */
+  other: number;
+  /** Locked before an answer arrived (or after a bad one). */
+  late: number;
 }
 
 export interface BenchSummary {
@@ -150,6 +162,7 @@ function summarizeModel(spec: AgentSpec, all: Match[], label: string): ModelSumm
   const frozenLines = frozen.map((m) => locksOf(m, id).reduce((n, l) => n + l.rows.length, 0));
   const landed = realtime.map((m) => locksOf(m, id).filter((l) => l.byDecision).length);
   const rtLocks = realtime.flatMap((m) => locksOf(m, id));
+  const splits = realtime.map((m) => liveDecisions(m, id));
   const latencies = mine.flatMap((m) => decisionsOf(m, id).map((d) => d.latencyMs));
 
   return {
@@ -164,8 +177,31 @@ function summarizeModel(spec: AgentSpec, all: Match[], label: string): ModelSumm
     medianMs: median(latencies),
     realtimeLanded: mean(landed),
     tooLate: realtime.length ? lateShare(rtLocks) : null,
+    live: splits.length
+      ? {
+          correct: mean(splits.map((d) => d.correct)) ?? 0,
+          other: mean(splits.map((d) => d.other)) ?? 0,
+          late: mean(splits.map((d) => d.late)) ?? 0,
+        }
+      : null,
     costUsd: mine.reduce((sum, m) => sum + costOf(m.events, (agentId) => agentId === id), 0),
   };
+}
+
+/** Every lock of the model in one match, as correct, other or late; a placed piece is correct when its on-time answer ranked 1. */
+function liveDecisions(m: Match, agentId: string): LiveDecisions {
+  const ranks = new Map(
+    decisionsOf(m, agentId)
+      .filter((d) => d.status === "ok")
+      .map((d) => [d.pieceId, d.bestRank]),
+  );
+  const split = { correct: 0, other: 0, late: 0 };
+  for (const lock of locksOf(m, agentId)) {
+    if (!lock.byDecision) split.late += 1;
+    else if (ranks.get(lock.pieceId) === 1) split.correct += 1;
+    else split.other += 1;
+  }
+  return split;
 }
 
 function decisionsOf(m: Match, agentId: string): Decision[] {

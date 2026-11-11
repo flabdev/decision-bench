@@ -42,5 +42,5 @@
 <text x="207.6" y="331.66923076923075" font-size="12" fill="#0b0b0b">Strands Decider</text>
 <circle cx="200.7" cy="347.3" r="7" fill="#2a78d6"><title>Laya: 7% good moves, 452 ms</title></circle>
 <text x="213.7" y="351.25" font-size="12" fill="#0b0b0b">Laya</text>
-<text x="24" y="430" font-size="11" fill="#898781">Deadline Tetris · 4 Live games, up to 10 minutes each · no error bars yet</text>
+<text x="24" y="430" font-size="11" fill="#898781">Deadline Tetris · 4 Live runs, up to 10 minutes each · no error bars yet</text>
 </svg>

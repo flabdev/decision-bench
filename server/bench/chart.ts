@@ -1,13 +1,13 @@
-import type { BenchSummary, ModelSummary } from "./results";
+import type { BenchSummary, LiveDecisions, ModelSummary } from "./results";
 
 // Renders the bench results as two self-contained SVGs (light or dark):
 // "choices", a scatter of good-move rate against typical answer time (best corner: top left), and
-// "pieces", bars of pieces placed in time per live game.
+// "decisions", bars of decisions per live run, drawn to scale and split into correct, other and too late.
 // Baselines (the heuristic) are yardsticks, not entrants, so they are left out.
 
 export type ChartTheme = "light" | "dark";
-export type ChartPart = "choices" | "pieces";
-export const CHART_PARTS: readonly ChartPart[] = ["choices", "pieces"];
+export type ChartPart = "choices" | "decisions";
+export const CHART_PARTS: readonly ChartPart[] = ["choices", "decisions"];
 
 interface Palette {
   bg: string;
@@ -18,6 +18,9 @@ interface Palette {
   axis: string;
   decision: string;
   language: string;
+  correct: string;
+  other: string;
+  late: string;
 }
 
 const PALETTES: Record<ChartTheme, Palette> = {
@@ -30,6 +33,9 @@ const PALETTES: Record<ChartTheme, Palette> = {
     axis: "#c3c2b7",
     decision: "#2a78d6",
     language: "#eb6834",
+    correct: "#1baf7a",
+    other: "#b4b2a9",
+    late: "#e34948",
   },
   dark: {
     bg: "#1a1a19",
@@ -40,6 +46,9 @@ const PALETTES: Record<ChartTheme, Palette> = {
     axis: "#383835",
     decision: "#3987e5",
     language: "#d95926",
+    correct: "#199e70",
+    other: "#5f5e5a",
+    late: "#e66767",
   },
 };
 
@@ -80,10 +89,10 @@ const HEADINGS: Record<ChartPart, { title: string; sub: string; aria: string }> 
     sub: "Each mark is a model. Best is the top-left corner ↖",
     aria: "Good-move rate against typical answer time, one mark per model",
   },
-  pieces: {
-    title: "Pieces placed in time",
-    sub: "Average per Live game. Higher is better.",
-    aria: "Pieces placed in time per live game, one bar per model",
+  decisions: {
+    title: "Correct decisions, on time",
+    sub: "Each bar is one model's decisions per run. The longer the bar, the longer it kept up.",
+    aria: "Decisions per live run, split into correct and on time, other move, and too late",
   },
 };
 
@@ -110,14 +119,22 @@ export function renderChart(summary: BenchSummary, theme: ChartTheme, part: Char
   parts.push(text(24, 58, 12, 400, c.muted, heading.sub));
 
   let lx = 24;
-  for (const [kind, name] of LEGEND) {
-    if (!present.has(kind)) continue;
-    parts.push(marker(kind, lx + 6, 80, 5, c[kind]));
-    parts.push(text(lx + 18, 84, 12, 400, c.ink2, name));
-    lx += 18 + name.length * CHAR_W + 22;
+  if (part === "choices") {
+    for (const [kind, name] of LEGEND) {
+      if (!present.has(kind)) continue;
+      parts.push(marker(kind, lx + 6, 80, 5, c[kind]));
+      parts.push(text(lx + 18, 84, 12, 400, c.ink2, name));
+      lx += 18 + name.length * CHAR_W + 22;
+    }
+  } else {
+    for (const seg of SEGMENTS) {
+      parts.push(`<rect x="${lx}" y="75" width="10" height="10" rx="2" fill="${c[seg]}"/>`);
+      parts.push(text(lx + 16, 84, 12, 400, c.ink2, SEGMENT_NAMES[seg]));
+      lx += 16 + SEGMENT_NAMES[seg].length * CHAR_W + 22;
+    }
   }
 
-  parts.push(...(part === "choices" ? scatter(rows, c) : bars(rows, c)));
+  parts.push(...(part === "choices" ? scatter(rows, c) : decisionBars(rows, c)));
 
   notes.forEach((line, i) => {
     parts.push(text(24, H - 14 - (notes.length - 1 - i) * FOOTER_LINE, 11, 400, c.muted, line));
@@ -171,34 +188,62 @@ function scatter(rows: ModelSummary[], c: Palette): string[] {
   return parts;
 }
 
-/** Pieces placed in time per live game, most first, with the share of answers that came too late. */
-function bars(rows: ModelSummary[], c: Palette): string[] {
+/**
+ * Decisions per live run, to scale: a bar's length is the pieces the model had to place in a run, split into
+ * correct and on time, on time but another move, and too late. Sorted by correct decisions, most first.
+ */
+function decisionBars(rows: ModelSummary[], c: Palette): string[] {
   const parts: string[] = [];
   const top = BODY_TOP;
-  const sorted = [...rows].sort((a, b) => (b.realtimeLanded ?? -1) - (a.realtimeLanded ?? -1));
-  const widest = Math.max(0, ...sorted.map((m) => (m.realtimeLanded === null ? 0 : Array.from(landedLabel(m)).length)));
+  const sorted = [...rows].sort((a, b) => (b.live?.correct ?? -1) - (a.live?.correct ?? -1));
+  const widest = Math.max(0, ...sorted.map((m) => (m.live === null ? 0 : Array.from(decisionLabel(m.live)).length)));
   const span = W - 24 - BAR_X0 - Math.max(MIN_VALUE_ROOM, Math.ceil(widest * CHAR_W) + 10);
-  const max = Math.max(0, ...sorted.map((m) => m.realtimeLanded ?? 0));
+  const max = Math.max(0, ...sorted.map((m) => (m.live === null ? 0 : total(m.live))));
   parts.push(`<line x1="${BAR_X0}" y1="${top - 6}" x2="${BAR_X0}" y2="${top + sorted.length * ROW_H - 10}" stroke="${c.axis}" stroke-width="1"/>`);
   sorted.forEach((m, i) => {
     const y = top + i * ROW_H;
     parts.push(text(LABEL_W, y + BAR_H / 2 + 4, 13, 400, c.ink, rowLabel(m), 'text-anchor="end"'));
-    if (m.realtimeLanded === null) {
+    if (m.live === null || max === 0) {
       parts.push(text(BAR_X0 + 6, y + BAR_H / 2 + 4, 12, 400, c.muted, "—"));
       return;
     }
-    const w = m.realtimeLanded > 0 && max > 0 ? Math.max(2, (m.realtimeLanded / max) * span) : 0;
-    const title = `${esc(rowLabel(m))}: ${esc(landedLabel(m))}`;
-    parts.push(`<rect x="${BAR_X0}" y="${y}" width="${w.toFixed(1)}" height="${BAR_H}" rx="4" fill="${c[kindOf(m)]}"><title>${title}</title></rect>`);
-    parts.push(text((BAR_X0 + w + 6).toFixed(1), y + BAR_H / 2 + 4, 12, 400, c.ink2, landedLabel(m)));
+    const live = m.live;
+    let x = BAR_X0;
+    for (const seg of SEGMENTS) {
+      const w = (live[seg] / max) * span;
+      if (w <= 0) continue;
+      const tip = `${esc(rowLabel(m))}: ${perRun(live[seg])} ${SEGMENT_NAMES[seg].toLowerCase()} per run (${share(live[seg], live)}%)`;
+      parts.push(`<rect x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${BAR_H}" fill="${c[seg]}"><title>${tip}</title></rect>`);
+      x += w;
+    }
+    parts.push(text((x + 6).toFixed(1), y + BAR_H / 2 + 4, 12, 400, c.ink2, decisionLabel(live)));
   });
   return parts;
 }
 
-function landedLabel(m: ModelSummary): string {
-  const landed = Math.round((m.realtimeLanded ?? 0) * 10) / 10;
-  const late = m.tooLate !== null && m.tooLate >= 1 ? ` · ${Math.round(m.tooLate)}% too late` : "";
-  return `${Number.isInteger(landed) ? landed : landed.toFixed(1)}${late}`;
+const SEGMENTS = ["correct", "other", "late"] as const;
+type Segment = (typeof SEGMENTS)[number];
+const SEGMENT_NAMES: Record<Segment, string> = { correct: "Correct, on time", other: "On time, other move", late: "Too late" };
+
+function total(live: LiveDecisions): number {
+  return live.correct + live.other + live.late;
+}
+
+/** A segment as a whole-number percentage of the model's decisions. */
+function share(n: number, live: LiveDecisions): number {
+  const t = total(live);
+  return t > 0 ? Math.round((100 * n) / t) : 0;
+}
+
+function perRun(n: number): string {
+  const r = Math.round(n * 10) / 10;
+  return Number.isInteger(r) ? String(r) : r.toFixed(1);
+}
+
+/** "70.8 correct (60%)", plus " · 13% too late" when at least 1% came too late. */
+function decisionLabel(live: LiveDecisions): string {
+  const late = share(live.late, live);
+  return `${perRun(live.correct)} correct (${share(live.correct, live)}%)${late >= 1 ? ` · ${late}% too late` : ""}`;
 }
 
 function yOf(pct: number): number {
@@ -255,17 +300,16 @@ function footer(summary: BenchSummary): string[] {
   const clauses = [ENVIRONMENTS[id] ?? summary.environment];
   const live = summary.games.realtime;
   const paused = summary.games.frozen;
-  if (live > 0)
-    clauses.push(`${games(live, "Live")}${summary.realtimeSeconds === null ? "" : `, up to ${gameLength(summary.realtimeSeconds)} each`}`);
-  if (paused > 0) clauses.push(`${games(paused, "Paused")}${summary.frozenPieces === null ? "" : `, ${summary.frozenPieces} pieces each`}`);
+  if (live > 0) clauses.push(`${runs(live, "Live")}${summary.realtimeSeconds === null ? "" : `, up to ${gameLength(summary.realtimeSeconds)} each`}`);
+  if (paused > 0) clauses.push(`${runs(paused, "Paused")}${summary.frozenPieces === null ? "" : `, ${summary.frozenPieces} pieces each`}`);
   const left = summary.skipped.length;
-  if (left > 0) clauses.push(`${left} unfinished ${left === 1 ? "game" : "games"} left out`);
+  if (left > 0) clauses.push(`${left} unfinished ${left === 1 ? "run" : "runs"} left out`);
   clauses.push("no error bars yet");
   return clauses;
 }
 
-function games(n: number, mode: string): string {
-  return `${n} ${mode} ${n === 1 ? "game" : "games"}`;
+function runs(n: number, mode: string): string {
+  return `${n} ${mode} ${n === 1 ? "run" : "runs"}`;
 }
 
 /** A live game's time limit in words; whole minutes read as minutes. */

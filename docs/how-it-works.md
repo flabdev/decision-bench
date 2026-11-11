@@ -4,7 +4,7 @@ The game, what every model is shown, how answers are judged, and what the screen
 The [README](../README.md#how-the-environment-works) has the short version.
 
 In `bench.yaml` and the logs, Live is `realtime` and Paused is `frozen`; the
-page's Clock menu says Real time and Frozen. A **seed** fixes one game's pieces.
+page's Clock menu says Real time and Frozen. A **seed** fixes one run's pieces.
 The page and `bun run stats` show the good-move rate as **Best moves**.
 
 ## How a run works
@@ -15,7 +15,7 @@ The page and `bun run stats` show the good-move rate as **Best moves**.
   the same pieces in the same order.**
 - The same seed and settings give the same game. With mock models the whole run
   is reproducible. With live models the pieces repeat, but the models' answers can vary.
-- One game proves little. For real conclusions, run several seeds (e.g. 1–10) and compare averages.
+- One run proves little. For real conclusions, play several runs (seeds 1–10, say) and compare averages.
 
 ### The two clocks (Live and Paused)
 
@@ -28,7 +28,7 @@ The page and `bun run stats` show the good-move rate as **Best moves**.
 
 Run both on the same seed. Live shows speed, and Paused shows skill without speed.
 On the page, a Paused run still stops at the time limit. In `bun bench`, a Paused
-game gives every board the same number of pieces (`tetris.frozenPieces`, 100 by
+run gives every board the same number of pieces (`tetris.frozenPieces`, 100 by
 default; a frozen sprint uses `tetris.maxPieces`), and runs until each board has
 placed them or topped out.
 
@@ -52,7 +52,7 @@ chart and the stats script.
 |---|---|---|
 | Board | 10 × 20, plus 2 hidden rows above | pieces appear in the top visible row |
 | Gravity | `(0.8 − (level−1)·0.007)^(level−1)` seconds per row | the standard Tetris speed curve: 1 s/row at level 1, under 1 ms/row by level 20 |
-| Levels | +1 every **15 s** of game time, up to 20 (Live only) | time-based, not line-based, so the deadline shrinks for everyone at the same pace. In Paused games the level stays at the start level: time there is only waiting, and every model should see the same state |
+| Levels | +1 every **15 s** of game time, up to 20 (Live only) | time-based, not line-based, so the deadline shrinks for everyone at the same pace. In Paused runs the level stays at the start level: time there is only waiting, and every model should see the same state |
 | Lock delay | **500 ms** | a resting piece locks after this long |
 | Entry delay | **200 ms** | pause between a lock and the next piece |
 | Drop after a decision | **30 ms per row**, never slower than gravity | see below |
@@ -68,8 +68,8 @@ chart and the stats script.
    live runs, replays and logs all show it, and it's identical for every board.
 3. **If the piece locks first** (Live), it lands wherever gravity took it,
    in its spawn rotation and column. That counts as **too late**.
-4. **If the answer is invalid or the request fails**: in Live games the piece
-   keeps falling and lands wherever gravity takes it. In Paused games it
+4. **If the answer is invalid or the request fails**: in Live runs the piece
+   keeps falling and lands wherever gravity takes it. In Paused runs it
    falls straight down from where it is, as it also does when no answer arrives within 30 s.
 
 Once a piece has locked, the next one appears after the entry delay. The model

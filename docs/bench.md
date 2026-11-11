@@ -221,7 +221,7 @@ model and a `<picture>` snippet for each chart, ready for the README.
 | Flag | Meaning |
 |---|---|
 | `<folder>` | Required. The output folder, with its `.jsonl` logs. |
-| `--out prefix` | Where the files go. By default they go next to the logs: `<folder>/results-choices-light.svg`, `results-choices-dark.svg`, `results-pieces-light.svg` and `results-pieces-dark.svg`. A value that ends in `/`, or names an existing folder, is a folder: the files go in it with those names. To redraw the README's charts, pass `--out docs/media/results`. Paths are relative to the repository root, where `bun bench` always runs. |
+| `--out prefix` | Where the files go. By default they go next to the logs: `<folder>/results-choices-light.svg`, `results-choices-dark.svg`, `results-decisions-light.svg` and `results-decisions-dark.svg`. A value that ends in `/`, or names an existing folder, is a folder: the files go in it with those names. To redraw the README's charts, pass `--out docs/media/results`. Paths are relative to the repository root, where `bun bench` always runs. |
 | `--allow-mock` | Draw a bench that has a mock model (see below). Without it, `chart` refuses. |
 
 **The two charts.** Baseline models (`heuristic`, `random`) are yardsticks, not
@@ -229,22 +229,22 @@ entrants, so both charts leave them out.
 
 | Chart | Shows | How it is averaged |
 |---|---|---|
-| `choices`: good choices vs. fast answers | One mark per model: good-move rate (0–100%, higher is better) against typical answer time (log scale, faster is better). The best corner is top left. | Good-move rate: the mean per game, from Paused (`frozen`) games if there are any, otherwise from every Live answer. Answer time: the median over every answer. |
-| `pieces`: pieces placed in time | One bar per model, most first, with `· N% too late` when at least 1% of its pieces landed before the answer. | Mean per Live (`realtime`) game. The late share is pooled over every Live piece. |
+| `choices`: good choices vs. fast answers | One mark per model: good-move rate (0–100%, higher is better) against typical answer time (log scale, faster is better). The best corner is top left. | Good-move rate: the mean per run, from Paused (`frozen`) runs if there are any, otherwise from every Live answer. Answer time: the median over every answer. |
+| `decisions`: correct decisions, on time | One bar per model, drawn to scale: its length is the decisions the model made per Live (`realtime`) run, split into correct and on time (the heuristic's top pick, answered before the piece landed), on time but another move, and too late. Sorted by correct decisions, most first. The label gives the correct count and share, plus `· N% too late` when at least 1% came too late. | Mean per run of each part. |
 
 A blue circle is a decision model and an orange square a language model, so the
 kind never rests on colour alone. Display names come from `models.json` by model
 id, so a chart of old logs shows today's names.
 
-**Footer.** One line: the environment, the number of Live and Paused games (with
-the time limit or the pieces per game), any unfinished games left out, and "no
+**Footer.** One line: the environment, the number of Live and Paused runs (with
+the time limit or the pieces per run), any unfinished runs left out, and "no
 error bars yet". If no model has a graded answer, the `choices` chart says so
 instead of drawing marks.
 
 **Unfinished logs.** A match log whose run never finished (its last line is not
 `run_finished`, for example because the run was stopped) is left out, not
 charted as a full game. `chart` prints `Left out N unfinished match logs:` with
-their file names, and the footer says how many games were left out. A log
+their file names, and the footer says how many runs were left out. A log
 whose last line is half written counts as unfinished. If every log is
 unfinished, `chart` says so and writes nothing.
 

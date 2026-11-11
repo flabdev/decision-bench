@@ -280,7 +280,7 @@ describe("bench chart", () => {
     const out = join(tempDir(), "media/results");
     const { io, text } = capture();
     expect(await main(["chart", tmp, "--out", out, "--allow-mock"], io)).toBe(0);
-    for (const part of ["choices", "pieces"]) {
+    for (const part of ["choices", "decisions"]) {
       for (const theme of ["light", "dark"]) {
         const svg = readFileSync(`${out}-${part}-${theme}.svg`, "utf8");
         expect(svg.startsWith("<svg")).toBe(true);
@@ -291,7 +291,7 @@ describe("bench chart", () => {
     const imgs = lines.filter((l) => l.trim().startsWith("<img"));
     expect(sources).toHaveLength(2);
     expect(sources[0]).toMatch(/^\s*<source media="\(prefers-color-scheme: dark\)" srcset="[^"]*-choices-dark\.svg">$/);
-    expect(imgs[1]).toMatch(/^\s*<img alt="[^"]*" src="[^"]*-pieces-light\.svg">$/);
+    expect(imgs[1]).toMatch(/^\s*<img alt="[^"]*" src="[^"]*-decisions-light\.svg">$/);
   });
 
   test("without --out it writes the charts next to the logs, never over the README's charts", async () => {
@@ -299,7 +299,7 @@ describe("bench chart", () => {
     expect(await main(["demo", "--out", tmp], capture().io, demoOpts)).toBe(0);
     expect(await main(["chart", tmp, "--allow-mock"], capture().io)).toBe(0);
     expect(existsSync(join(tmp, "results-choices-light.svg"))).toBe(true);
-    expect(existsSync(join(tmp, "results-pieces-dark.svg"))).toBe(true);
+    expect(existsSync(join(tmp, "results-decisions-dark.svg"))).toBe(true);
   });
 
   test("a missing folder prints the reason and exits 1", async () => {
@@ -327,7 +327,7 @@ describe("bench chart", () => {
     expect(text()).not.toContain("--allow-mock");
     expect(text()).toContain("<picture>");
     expect(existsSync(`${out}-choices-light.svg`)).toBe(true);
-    expect(existsSync(`${out}-pieces-dark.svg`)).toBe(true);
+    expect(existsSync(`${out}-decisions-dark.svg`)).toBe(true);
   });
 
   test("a live model with one mock that is not a baseline is refused, and the message names that mock", async () => {
@@ -349,7 +349,7 @@ describe("bench chart", () => {
     const folder = `${tempDir()}/`;
     expect(await main(["chart", tmp, "--out", folder, "--allow-mock"], capture().io)).toBe(0);
     expect(existsSync(`${folder}results-choices-light.svg`)).toBe(true);
-    expect(existsSync(`${folder}results-pieces-dark.svg`)).toBe(true);
+    expect(existsSync(`${folder}results-decisions-dark.svg`)).toBe(true);
   });
 
   test("an --out that names an existing folder, with no slash, writes results inside it", async () => {
@@ -358,7 +358,7 @@ describe("bench chart", () => {
     const folder = tempDir();
     expect(await main(["chart", tmp, "--out", folder, "--allow-mock"], capture().io)).toBe(0);
     expect(existsSync(join(folder, "results-choices-light.svg"))).toBe(true);
-    expect(existsSync(join(folder, "results-pieces-dark.svg"))).toBe(true);
+    expect(existsSync(join(folder, "results-decisions-dark.svg"))).toBe(true);
   });
 });
 
