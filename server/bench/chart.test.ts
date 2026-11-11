@@ -27,7 +27,7 @@ function both(summary: BenchSummary, theme: ChartTheme): string {
 /** The footer's lines, joined back into one " · " list. */
 function footerText(svg: string): string {
   const height = Number(svg.match(/height="(\d+)"/)?.[1]);
-  return [...svg.matchAll(/<text x="24" y="(\d+)" font-size="11" fill="[^"]+">([^<]*)<\/text>/g)]
+  return [...svg.matchAll(/<text x="24" y="(\d+)" font-size="13" fill="[^"]+">([^<]*)<\/text>/g)]
     .filter((m) => Number(m[1]) > height - 60)
     .map((m) => m[2])
     .join(" · ");
@@ -96,7 +96,7 @@ function fixture(overrides: Partial<BenchSummary> = {}): BenchSummary {
 
 /** Bar segments as [width, title], in document order. */
 function segments(svg: string): [number, string][] {
-  return [...svg.matchAll(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="16" fill="[^"]+"><title>([^<]*)<\/title>/g)].map((m) => [
+  return [...svg.matchAll(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="24" fill="[^"]+"><title>([^<]*)<\/title>/g)].map((m) => [
     Number(m[1]),
     m[2] ?? "",
   ]);
@@ -116,14 +116,14 @@ function barLength(svg: string, name: string): number {
 
 /** Scatter marks as {x, y, title}: circles and squares that carry a tooltip. */
 function marks(svg: string): { x: number; y: number; title: string }[] {
-  const circles = [...svg.matchAll(/<circle cx="([\d.]+)" cy="([\d.]+)" r="7"[^>]*><title>([^<]*)<\/title>/g)].map((m) => ({
+  const circles = [...svg.matchAll(/<circle cx="([\d.]+)" cy="([\d.]+)" r="8"[^>]*><title>([^<]*)<\/title>/g)].map((m) => ({
     x: Number(m[1]),
     y: Number(m[2]),
     title: m[3],
   }));
-  const squares = [...svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="12.6" height="12.6"[^>]*><title>([^<]*)<\/title>/g)].map((m) => ({
-    x: Number(m[1]) + 6.3,
-    y: Number(m[2]) + 6.3,
+  const squares = [...svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="14.4" height="14.4"[^>]*><title>([^<]*)<\/title>/g)].map((m) => ({
+    x: Number(m[1]) + 7.2,
+    y: Number(m[2]) + 7.2,
     title: m[3],
   }));
   return [...circles, ...squares];
@@ -138,8 +138,8 @@ function markOf(svg: string, name: string) {
 describe("renderChart", () => {
   test("each part is its own svg, with role img and its own title", () => {
     const parts: [ChartPart, string][] = [
-      ["choices", "Good choices vs. fast answers"],
-      ["decisions", "Decisions per run: on time and correct"],
+      ["choices", "Quality vs speed"],
+      ["decisions", "Right decision, on time"],
     ];
     for (const [part, title] of parts) {
       const svg = renderChart(fixture(), "light", part);
@@ -191,7 +191,7 @@ describe("renderChart", () => {
   test("a decision model is a circle and a language model a square", () => {
     const svg = both(fixture(), "light");
     expect(svg).toMatch(/<circle [^>]*><title>Jev: 60% good moves, 310 ms<\/title>/);
-    expect(svg).toMatch(/<rect [^>]*width="12.6"[^>]*><title>Model B: 64% good moves, 1.2 s<\/title>/);
+    expect(svg).toMatch(/<rect [^>]*width="14.4"[^>]*><title>Model B: 64% good moves, 1.2 s<\/title>/);
   });
 
   test("a higher good-move rate sits higher, and a faster answer further left", () => {
@@ -226,8 +226,8 @@ describe("renderChart", () => {
       ],
     });
     const svg = both(summary, "light");
-    const ys = ["Strands Decider", "Laya"].map((n) => Number(svg.match(new RegExp(`y="([\\d.]+)" font-size="12" fill="[^"]+">${n}</text>`))?.[1]));
-    expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(14);
+    const ys = ["Strands Decider", "Laya"].map((n) => Number(svg.match(new RegExp(`y="([\\d.]+)" font-size="14" fill="[^"]+">${n}</text>`))?.[1]));
+    expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(17);
   });
 
   test("a model without a good-move rate gets a bar but no mark", () => {
@@ -295,7 +295,7 @@ describe("renderChart", () => {
         anchored: m[3].includes("text-anchor"),
         width: Array.from(m[4].replace(/&[a-z#0-9]+;/g, "_")).length * 0.6 * Number(m[2]),
       }));
-      for (const t of texts) if (!t.anchored) expect(t.x + t.width).toBeLessThanOrEqual(876);
+      for (const t of texts) if (!t.anchored) expect(t.x + t.width).toBeLessThanOrEqual(996);
     }
   });
 

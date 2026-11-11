@@ -32,10 +32,14 @@ bun run stats benchmarks/2026-10-17/tetris/*.jsonl
 
 Run with `bun bench` on 2026-10-28. Each model played 3 Paused runs of 40 pieces and 3 Live runs of 2 minutes.
 
+### Quality vs speed
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="media/results-2026-10-28-choices-dark.svg">
   <img alt="Good-move rate against typical answer time, one mark per model" src="media/results-2026-10-28-choices-light.svg">
 </picture>
+
+### Right decision, on time
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="media/results-2026-10-28-decisions-dark.svg">

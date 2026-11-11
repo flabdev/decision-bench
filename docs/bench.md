@@ -229,8 +229,8 @@ entrants, so both charts leave them out.
 
 | Chart | Shows | How it is averaged |
 |---|---|---|
-| `choices`: good choices vs. fast answers | One mark per model: good-move rate (0–100%, higher is better) against typical answer time (log scale, faster is better). The best corner is top left. | Good-move rate: the mean per run, from Paused (`frozen`) runs if there are any, otherwise from every Live answer. Answer time: the median over every answer. |
-| `decisions`: decisions per run, on time and correct | One bar per model, drawn to scale: its length is the decisions the model made per Live (`realtime`) run. Green arrived on time, dark green for the heuristic's top pick and light green for another move; red came too late. Sorted by correct decisions, most first. The label reads like "100% on time · 60% correct · 119 decisions". The subtitle gives the longest and shortest time any model had to answer. | Mean per run of each part. |
+| `choices`: quality vs speed | One mark per model: good-move rate (0–100%, higher is better) against typical answer time (log scale, faster is better). The best corner is top left. | Good-move rate: the mean per run, from Paused (`frozen`) runs if there are any, otherwise from every Live answer. Answer time: the median over every answer. |
+| `decisions`: right decision, on time | One bar per model, drawn to scale: its length is the decisions the model made per Live (`realtime`) run. Green arrived on time, dark green for the heuristic's top pick and light green for another move; red came too late. Sorted by correct decisions, most first. The label reads like "100% on time · 60% correct · 119 decisions". The subtitle gives the longest and shortest time any model had to answer. | Mean per run of each part. |
 
 A blue circle is a decision model and an orange square a language model, so the
 kind never rests on colour alone. Display names come from `models.json` by model
