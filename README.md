@@ -126,8 +126,8 @@ The design is in [docs/design/eval-engine.md](docs/design/eval-engine.md).
 If you use decision-bench, please cite it:
 
 ```bibtex
-@software{peram2026decisionbench,
-  author  = {Peram, Jagadeeswara Reddy and {Fission Labs}},
+@software{fission2026decisionbench,
+  author  = {{Fission Engineering}},
   title   = {decision-bench},
   version = {0.1.0},
   year    = {2026},
@@ -135,7 +135,7 @@ If you use decision-bench, please cite it:
 }
 ```
 
-Peram, J. R., & Fission Labs (2026). *decision-bench* (version 0.1.0). https://github.com/flabdev/decision-bench
+Fission Engineering (2026). *decision-bench* (version 0.1.0). https://github.com/flabdev/decision-bench
 
 The same details are in [CITATION.cff](CITATION.cff), which also feeds GitHub's "Cite this repository" button.
 
@@ -143,5 +143,4 @@ The same details are in [CITATION.cff](CITATION.cff), which also feeds GitHub's 
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) lists the checks: `bun run lint && bun run typecheck && bun test`.
 - [SECURITY.md](SECURITY.md) covers reporting and how keys are handled.
-- Development up to v0.1.0 happened in [jagadeeswara-reddy-p/jev-demos](https://github.com/jagadeeswara-reddy-p/jev-demos), which keeps the full history.
 - [MIT](LICENSE). Third-party models and the [JevBench](https://github.com/fstandhartinger/jevbench) data in `benchmarks/` keep their own terms.

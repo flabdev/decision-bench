@@ -3,10 +3,7 @@ message: "If you use decision-bench, please cite it as below."
 type: software
 title: decision-bench
 authors:
-  - given-names: Jagadeeswara Reddy
-    family-names: Peram
-    affiliation: Fission Labs
-  - name: Fission Labs
+  - name: Fission Engineering
 version: 0.1.0
 date-released: 2026-10-28
 license: MIT
