@@ -20,7 +20,7 @@ The first **environment** (a game every model plays under the same rules) is **D
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-decisions-dark.svg">
-  <img alt="Decisions per live run, split into correct and on time, other move, and too late" src="docs/media/results-decisions-light.svg">
+  <img alt="Decisions per live run: on time and correct, on time with another move, and too late" src="docs/media/results-decisions-light.svg">
 </picture>
 
 **Jev is the only model that is both fast and accurate, so it makes the most correct decisions on time.** The language models choose well but answer too slowly. Laya and Strands Decider answer fast but choose poorly.
@@ -28,20 +28,21 @@ The first **environment** (a game every model plays under the same rules) is **D
 <details>
 <summary>Full numbers and what they mean</summary>
 
-| Model | Type | Correct and on time, per run (higher is better) | Decisions per run | Good-move rate (higher is better) | Typical answer time (lower is better) | Too late (lower is better) | Cost for 4 runs |
-|---|---|---|---|---|---|---|---|
-| Jev | decision model | **70.8** (60%) | 118.8 | 59% | **289 ms** | 0% | $0.03 |
-| Cloudflare Clef | decision model | 34.3 (49%) | 69.8 | 48% | 438 ms | 1% | $0.11 |
-| GPT-6.1 Sol | language model | 17.3 (64%) | 26.8 | 72% | 2.04 s | 13% | $0.48 |
-| Claude Opus 5.5 | language model | 8.3 (46%) | 17.8 | **79%** | 5.14 s | 46% | $1.02 |
-| Strands Decider | decision model | 3.3 (15%) | 21.3 | 15% | 435 ms | 1% | self-hosted |
-| Laya | decision model | 1.5 (7%) | 20.5 | 7% | 452 ms | 0% | self-hosted |
+| Model | Type | On time (higher is better) | Correct (higher is better) | Decisions per run | Good-move rate (higher is better) | Time allowed per decision (median) | Typical answer time (lower is better) | Cost for 4 runs |
+|---|---|---|---|---|---|---|---|---|
+| Jev | decision model | 100% | 60% | 118.8 | 59% | 4.8 s | 289 ms | $0.03 |
+| Cloudflare Clef | decision model | 99% | 49% | 69.8 | 48% | 7.9 s | 438 ms | $0.11 |
+| GPT-6.1 Sol | language model | 87% | 64% | 26.8 | 72% | 7.6 s | 2.04 s | $0.48 |
+| Claude Opus 5.5 | language model | 54% | 46% | 17.8 | 79% | 8.1 s | 5.14 s | $1.02 |
+| Strands Decider | decision model | 99% | 15% | 21.3 | 15% | 10.5 s | 435 ms | self-hosted |
+| Laya | decision model | 100% | 7% | 20.5 | 7% | 9.5 s | 452 ms | self-hosted |
 
-- **Correct and on time:** decisions where the model picked the best spot *and* its answer arrived before the piece landed. The count per run, and its share of all the model's decisions.
+- **On time:** the share of the model's decisions that arrived before the piece landed.
+- **Correct:** the share that were on time *and* the best spot, as scored by a standard Tetris evaluator.[^grading]
 - **Decisions per run:** the pieces the model had to place before its board filled up or the run ended. The longer a model keeps up, the more decisions it makes.
-- **Good-move rate:** how often the model picked the best spot, as scored by a standard Tetris evaluator. Late answers are graded too, so speed doesn't affect this number.[^grading]
+- **Good-move rate:** how often the model picked the best spot, late answers included, so speed doesn't affect it.
+- **Time allowed per decision:** how long the piece took to land, which is the deadline for the answer. It starts at 19.5 s and shrinks to 0.5 s as the game speeds up, so a model that keeps up longer faces tighter deadlines.
 - **Typical answer time:** the median time from showing the piece to getting the answer.
-- **Too late:** the share of decisions where the piece landed before the answer arrived.
 
 Four Live runs per model, averaged. Every model played the same four runs, and each run stopped once four of the six boards had filled up.
 
@@ -64,7 +65,7 @@ More results, including Claude Haiku 5.5, are on the [results page](docs/results
 2. The model answers with one option.
 3. If the answer arrives before the piece lands, the piece goes there. If not, the piece lands wherever it falls.
 
-A **run** is one game from start to finish. Every model plays the same runs, with the same pieces in the same order. In Live runs the pieces fall faster every 15 seconds, so there is less and less time to answer.
+A **run** is one game from start to finish. Every model plays the same runs, with the same pieces in the same order. In Live runs the answer must arrive before the piece lands: about 20 s at the start, down to 0.5 s as the pieces fall faster every 15 seconds.
 
 | Mode | While the model thinks | What it shows |
 |---|---|---|

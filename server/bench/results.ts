@@ -4,7 +4,7 @@ import type { AgentSpec, ArenaEvent, ArenaEventOf, ClockMode, RunConfig } from "
 import { MOCK_PROFILES } from "../../src/mock/profiles";
 
 // Summarizes one bench folder per model, averaged over seeds. Only run_started,
-// decision, lock and run_finished events are read; a log without run_started is
+// spawn, decision, lock and run_finished events are read; a log without run_started is
 // not a match and is skipped. A log whose run never finished (no run_finished as
 // its last event) is left out and listed in skipped.
 
@@ -35,6 +35,8 @@ export interface ModelSummary {
   tooLate: number | null;
   /** Mean per realtime match of the model's decisions, split three ways; null without realtime matches. */
   live: LiveDecisions | null;
+  /** Median time allowed per decision in realtime matches (each spawn's deadlineMs); null without realtime matches. */
+  deadlineMs: number | null;
   /** Sum of decision usage.costUsd, all matches. */
   costUsd: number;
 }
@@ -60,6 +62,8 @@ export interface BenchSummary {
   frozenPieces: number | null;
   /** maxDurationMs / 1000 of a realtime match, null if none. */
   realtimeSeconds: number | null;
+  /** The longest and shortest time any model was allowed for a decision in realtime matches; null without them. */
+  deadlines: { maxMs: number; minMs: number } | null;
   /** Distinct seeds played on each clock: the games per model. */
   games: Record<ClockMode, number>;
   /** Sum of the costs of the non-mock models, all matches. */
@@ -75,6 +79,7 @@ export interface BenchSummary {
 type RunStarted = ArenaEventOf<"run_started">;
 type Decision = ArenaEventOf<"decision">;
 type Lock = ArenaEventOf<"lock">;
+type Spawn = ArenaEventOf<"spawn">;
 
 interface Match {
   mode: ClockMode;
@@ -82,7 +87,7 @@ interface Match {
   events: ArenaEvent[];
 }
 
-const USED = new Set<ArenaEvent["t"]>(["run_started", "decision", "lock", "run_finished"]);
+const USED = new Set<ArenaEvent["t"]>(["run_started", "spawn", "decision", "lock", "run_finished"]);
 
 export interface SummarizeOptions {
   /** Display names by sourceId; a model without one keeps the name its log gave it. */
@@ -128,6 +133,7 @@ export async function summarizeBench(dir: string, options: SummarizeOptions = {}
     seeds: new Set(matches.map((m) => m.config.seed)).size,
     frozenPieces: frozen ? frozen.config.maxPieces : null,
     realtimeSeconds: realtime ? realtime.config.maxDurationMs / 1000 : null,
+    deadlines: deadlineRange(matches.filter((m) => m.mode === "realtime")),
     games: { frozen: seedsOn(matches, "frozen"), realtime: seedsOn(matches, "realtime") },
     totalCostUsd: matches.reduce((sum, m) => sum + costOf(m.events, (agentId) => !MOCK_IDS.has(agentId ?? "")), 0),
     skipped,
@@ -163,6 +169,7 @@ function summarizeModel(spec: AgentSpec, all: Match[], label: string): ModelSumm
   const landed = realtime.map((m) => locksOf(m, id).filter((l) => l.byDecision).length);
   const rtLocks = realtime.flatMap((m) => locksOf(m, id));
   const splits = realtime.map((m) => liveDecisions(m, id));
+  const deadlines = realtime.flatMap((m) => spawnsOf(m, id).map((e) => e.deadlineMs));
   const latencies = mine.flatMap((m) => decisionsOf(m, id).map((d) => d.latencyMs));
 
   return {
@@ -177,6 +184,7 @@ function summarizeModel(spec: AgentSpec, all: Match[], label: string): ModelSumm
     medianMs: median(latencies),
     realtimeLanded: mean(landed),
     tooLate: realtime.length ? lateShare(rtLocks) : null,
+    deadlineMs: median(deadlines),
     live: splits.length
       ? {
           correct: mean(splits.map((d) => d.correct)) ?? 0,
@@ -202,6 +210,15 @@ function liveDecisions(m: Match, agentId: string): LiveDecisions {
     else split.other += 1;
   }
   return split;
+}
+
+function spawnsOf(m: Match, agentId?: string): Spawn[] {
+  return m.events.filter((e): e is Spawn => e.t === "spawn" && (agentId === undefined || e.agentId === agentId));
+}
+
+function deadlineRange(matches: Match[]): { maxMs: number; minMs: number } | null {
+  const all = matches.flatMap((m) => spawnsOf(m).map((e) => e.deadlineMs));
+  return all.length ? { maxMs: Math.max(...all), minMs: Math.min(...all) } : null;
 }
 
 function decisionsOf(m: Match, agentId: string): Decision[] {

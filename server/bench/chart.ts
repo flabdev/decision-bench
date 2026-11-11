@@ -33,8 +33,8 @@ const PALETTES: Record<ChartTheme, Palette> = {
     axis: "#c3c2b7",
     decision: "#2a78d6",
     language: "#eb6834",
-    correct: "#1baf7a",
-    other: "#b4b2a9",
+    correct: "#0f6e56",
+    other: "#9fe1cb",
     late: "#e34948",
   },
   dark: {
@@ -46,8 +46,8 @@ const PALETTES: Record<ChartTheme, Palette> = {
     axis: "#383835",
     decision: "#3987e5",
     language: "#d95926",
-    correct: "#199e70",
-    other: "#5f5e5a",
+    correct: "#1d9e75",
+    other: "#085041",
     late: "#e66767",
   },
 };
@@ -90,8 +90,8 @@ const HEADINGS: Record<ChartPart, { title: string; sub: string; aria: string }> 
     aria: "Good-move rate against typical answer time, one mark per model",
   },
   decisions: {
-    title: "Correct decisions, on time",
-    sub: "Each bar is one model's decisions per run. The longer the bar, the longer it kept up.",
+    title: "Decisions per run: on time and correct",
+    sub: "Green arrived on time, red too late.",
     aria: "Decisions per live run, split into correct and on time, other move, and too late",
   },
 };
@@ -116,7 +116,7 @@ export function renderChart(summary: BenchSummary, theme: ChartTheme, part: Char
   const parts: string[] = [];
   parts.push(`<rect width="${W}" height="${H}" rx="8" fill="${c.bg}"/>`);
   parts.push(text(24, 36, 18, 600, c.ink, heading.title));
-  parts.push(text(24, 58, 12, 400, c.muted, heading.sub));
+  parts.push(text(24, 58, 12, 400, c.muted, part === "decisions" ? `${heading.sub}${deadlineNote(summary)}` : heading.sub));
 
   let lx = 24;
   if (part === "choices") {
@@ -197,7 +197,8 @@ function decisionBars(rows: ModelSummary[], c: Palette): string[] {
   const top = BODY_TOP;
   const sorted = [...rows].sort((a, b) => (b.live?.correct ?? -1) - (a.live?.correct ?? -1));
   const widest = Math.max(0, ...sorted.map((m) => (m.live === null ? 0 : Array.from(decisionLabel(m.live)).length)));
-  const span = W - 24 - BAR_X0 - Math.max(MIN_VALUE_ROOM, Math.ceil(widest * CHAR_W) + 10);
+  // Room for the widest label even in a wide fallback font, so it never runs past the edge.
+  const span = W - 24 - BAR_X0 - Math.max(MIN_VALUE_ROOM, Math.ceil(widest * 12 * WIDE) + 10);
   const max = Math.max(0, ...sorted.map((m) => (m.live === null ? 0 : total(m.live))));
   parts.push(`<line x1="${BAR_X0}" y1="${top - 6}" x2="${BAR_X0}" y2="${top + sorted.length * ROW_H - 10}" stroke="${c.axis}" stroke-width="1"/>`);
   sorted.forEach((m, i) => {
@@ -223,7 +224,13 @@ function decisionBars(rows: ModelSummary[], c: Palette): string[] {
 
 const SEGMENTS = ["correct", "other", "late"] as const;
 type Segment = (typeof SEGMENTS)[number];
-const SEGMENT_NAMES: Record<Segment, string> = { correct: "Correct, on time", other: "On time, other move", late: "Too late" };
+const SEGMENT_NAMES: Record<Segment, string> = { correct: "On time, correct", other: "On time, other move", late: "Too late" };
+
+/** " A piece lands 19.5 s after it appears at the start, 0.5 s at the fastest." Empty without live runs. */
+function deadlineNote(summary: BenchSummary): string {
+  const d = summary.deadlines;
+  return d === null ? "" : ` Time to answer: ${duration(d.maxMs)} at the start, down to ${duration(d.minMs)}.`;
+}
 
 function total(live: LiveDecisions): number {
   return live.correct + live.other + live.late;
@@ -240,10 +247,10 @@ function perRun(n: number): string {
   return Number.isInteger(r) ? String(r) : r.toFixed(1);
 }
 
-/** "70.8 correct (60%)", plus " · 13% too late" when at least 1% came too late. */
+/** "100% on time · 60% correct · 119 decisions": shares of all the model's decisions, then their count per run. */
 function decisionLabel(live: LiveDecisions): string {
-  const late = share(live.late, live);
-  return `${perRun(live.correct)} correct (${share(live.correct, live)}%)${late >= 1 ? ` · ${late}% too late` : ""}`;
+  const n = Math.round(total(live));
+  return `${100 - share(live.late, live)}% on time · ${share(live.correct, live)}% correct · ${n} ${n === 1 ? "decision" : "decisions"}`;
 }
 
 function yOf(pct: number): number {

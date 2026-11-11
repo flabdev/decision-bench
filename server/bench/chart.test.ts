@@ -11,6 +11,7 @@ function model(overrides: Partial<ModelSummary> & Pick<ModelSummary, "id" | "lab
     medianMs: 500,
     realtimeLanded: 10,
     live: { correct: 5, other: 4, late: 1 },
+    deadlineMs: 6000,
     tooLate: 0,
     costUsd: 0.1,
     mock: false,
@@ -40,6 +41,7 @@ function fixture(overrides: Partial<BenchSummary> = {}): BenchSummary {
     seeds: 2,
     frozenPieces: 30,
     realtimeSeconds: 120,
+    deadlines: { maxMs: 19500, minMs: 500 },
     games: { frozen: 2, realtime: 2 },
     totalCostUsd: 2.4216,
     skipped: [],
@@ -102,7 +104,7 @@ function segments(svg: string): [number, string][] {
 
 /** One entry per bar: its green (correct, on time) segment. */
 function bars(svg: string): [number, string][] {
-  return segments(svg).filter(([, t]) => t.includes("correct, on time"));
+  return segments(svg).filter(([, t]) => t.includes("on time, correct"));
 }
 
 /** A bar's full length: the sum of its segments. */
@@ -137,7 +139,7 @@ describe("renderChart", () => {
   test("each part is its own svg, with role img and its own title", () => {
     const parts: [ChartPart, string][] = [
       ["choices", "Good choices vs. fast answers"],
-      ["decisions", "Correct decisions, on time"],
+      ["decisions", "Decisions per run: on time and correct"],
     ];
     for (const [part, title] of parts) {
       const svg = renderChart(fixture(), "light", part);
@@ -168,7 +170,7 @@ describe("renderChart", () => {
     const svg = both(fixture(), "light");
     expect(svg).toContain("↑ Good-move rate (higher is better)");
     expect(svg).toContain("← Typical answer time, log scale (faster is better)");
-    expect(svg).toContain("The longer the bar, the longer it kept up.");
+    expect(svg).toContain("Green arrived on time, red too late.");
     expect(svg).toContain("top-left corner ↖");
   });
 
@@ -247,16 +249,22 @@ describe("renderChart", () => {
     expect(Math.abs(barLength(svg, "Model B") / barLength(svg, "Jev") - 30 / 88)).toBeLessThan(0.01);
     const b = segments(svg).filter(([, t]) => t.startsWith("Model B:"));
     expect(b.map(([, t]) => t.split(": ")[1])).toEqual([
-      "6 correct, on time per run (20%)",
+      "6 on time, correct per run (20%)",
       "3 on time, other move per run (10%)",
       "21 too late per run (70%)",
     ]);
   });
 
-  test("a bar's label gives the correct count and share, and the late share when at least 1% came too late", () => {
+  test("a bar's label gives the on-time and correct shares of all its decisions, then their count", () => {
     const svg = renderChart(fixture(), "light", "decisions");
-    expect(svg).toContain(">53 correct (60%)</text>");
-    expect(svg).toContain(">15 correct (42%) · 39% too late</text>");
+    expect(svg).toContain(">100% on time · 60% correct · 88 decisions</text>");
+    expect(svg).toContain(">61% on time · 42% correct · 36 decisions</text>");
+  });
+
+  test("the decisions chart says how long a model had to answer, from the longest to the shortest deadline", () => {
+    expect(renderChart(fixture(), "light", "decisions")).toContain("Time to answer: 19.5 s at the start, down to 500 ms.");
+    expect(renderChart(fixture({ deadlines: null }), "light", "decisions")).not.toContain("Time to answer");
+    expect(renderChart(fixture(), "light", "choices")).not.toContain("Time to answer");
   });
 
   test("a model with no live runs gets a dash instead of a bar", () => {
