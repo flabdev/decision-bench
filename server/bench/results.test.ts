@@ -95,6 +95,40 @@ describe("summarizeBench", () => {
     expect(a?.seeds).toBe(2);
   });
 
+  test("splits each live run's pieces into correct and on time, other move, and too late, and means them per run", async () => {
+    const dir = tempDir();
+    const agents = [agent("a", "Model A", "system-one")];
+    const placed = (pieceId: number, bestRank: number): Line[] => [decision("a", 100, { pieceId, bestRank }), { ...lock("a", []), pieceId }];
+    writeLog(dir, "described-realtime-seed1.jsonl", [
+      startedLine("realtime", 1, agents),
+      ...placed(1, 1),
+      ...placed(2, 1),
+      ...placed(3, 4),
+      { ...lock("a", [], false), pieceId: 4 },
+      decision("a", 900, { pieceId: 4, bestRank: 1, status: "late" }),
+    ]);
+    writeLog(dir, "described-realtime-seed2.jsonl", [startedLine("realtime", 2, agents), ...placed(1, 1), ...placed(2, 2)]);
+    const a = (await summarizeBench(dir)).models[0];
+    // Run 1: 2 correct, 1 other, 1 late (its late answer ranked 1 does not count); run 2: 1 correct, 1 other.
+    expect(a.live).toEqual({ correct: 1.5, other: 1, late: 0.5 });
+  });
+
+  test("takes the median time allowed per decision from the spawns, and the longest and shortest over all models", async () => {
+    const dir = tempDir();
+    const agents = [agent("a", "Model A", "system-one"), agent("b", "Model B", "llm")];
+    const spawn = (agentId: string, deadlineMs: number): Line => ({ t: "spawn", at: 0, agentId, pieceId: 1, deadlineMs });
+    writeLog(dir, "described-realtime-seed1.jsonl", [
+      startedLine("realtime", 1, agents),
+      spawn("a", 19500),
+      spawn("a", 4000),
+      spawn("a", 1000),
+      spawn("b", 500),
+    ]);
+    const summary = await summarizeBench(dir);
+    expect(summary.models.find((m) => m.id === "a")?.deadlineMs).toBe(4000);
+    expect(summary.deadlines).toEqual({ maxMs: 19500, minMs: 500 });
+  });
+
   test("counts the games on each clock", async () => {
     const summary = await summarizeBench(mainFolder());
     expect(summary.games).toEqual({ frozen: 2, realtime: 2 });

@@ -200,7 +200,7 @@ async function chart(args: Args, io: Io): Promise<number> {
 
 /**
  * The prefix of the chart files. An --out that ends in a slash, or names an existing folder, is a folder:
- * the files go in it as results-choices-light.svg, results-pieces-dark.svg and so on.
+ * the files go in it as results-choices-light.svg, results-decisions-dark.svg and so on.
  */
 function outPrefix(out: string | undefined, folder: string): string {
   // By default the charts go next to the logs they come from, so charting a run never overwrites the README's charts.
@@ -225,12 +225,12 @@ function modelLine(m: ModelSummary): string {
   const goodMoves = m.goodMoveRate === null ? "—" : `${Math.round(m.goodMoveRate)}%`;
   const median = m.medianMs === null ? "—" : m.medianMs < 1000 ? `${Math.round(m.medianMs)} ms` : `${(m.medianMs / 1000).toFixed(1)} s`;
   const landed = m.realtimeLanded === null ? "—" : Number.isInteger(m.realtimeLanded) ? String(m.realtimeLanded) : m.realtimeLanded.toFixed(1);
-  return `${m.label}: good moves ${goodMoves}, median ${median}, live pieces placed ${landed}`;
+  return `${m.label}: good moves ${goodMoves}, median ${median}, live pieces placed per run ${landed}`;
 }
 
 const ALT: Record<ChartPart, string> = {
   choices: "Good-move rate against typical answer time, one mark per model",
-  pieces: "Pieces placed in time per live game, one bar per model",
+  decisions: "Decisions per live run, split into correct and on time, other move, and too late",
 };
 
 function pictureSnippet(prefix: string, part: ChartPart): string {

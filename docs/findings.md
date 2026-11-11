@@ -7,7 +7,7 @@ page explains them.
 ## In short
 
 - **Jev is the only model that is both fast and accurate.** It answers in about 0.3 s, is never late, and places the most pieces.
-- **Cloudflare Clef chooses well, but is about 150 ms slower than Jev**, which costs it pieces in Live games.
+- **Cloudflare Clef chooses well, but is about 150 ms slower than Jev**, which costs it correct decisions in Live runs.
 - **The language models choose best, but answer in 2–5 s**, so many pieces land before they answer. When the game waits for them, they lead.
 - **Strands Decider is a capable small model on text, but too unsure to play Tetris.**
 - **Laya can't tell options apart by the numbers in them**, so it falls back on picking options near the top of the list.
@@ -44,7 +44,7 @@ has up to 34 places it can land.
 
 ## How we tested
 
-- **Live games.** Four games (games 1–4), six boards, the same pieces. The numbers are in the [README](../README.md#results).
+- **Live runs.** Four runs (runs 1–4), six boards, the same pieces. The numbers are in the [README](../README.md#results).
 - **JevBench.** An independent benchmark of 231 public text questions for decision models ([results](#jevbench-results)). It shows whether a weak Tetris score means a weak model, or only a poor fit for Tetris.
 - **Shuffle test** (`scripts/position-bias.ts`). Twelve boards, each asked six times with the options in a different order, with the game paused. A model that reads the options picks the same spot every time; one that leans on position follows the order.
 - **Two-option test.** One clearly good option against one clearly bad one, in both orders, worded with numbers and in plain words.
@@ -75,55 +75,55 @@ One pass per model, run by us on 2026-10-17 through JevBench's own adapters. Jev
 
 ## Jev
 
-**Verdict: fast and accurate. It won all four games.**
+**Verdict: fast and accurate. It won all four runs.**
 
-- **Tetris:** 118.8 pieces placed per game, 289 ms typical answer, never late. Good-move rate 59%.
+- **Tetris:** 70.8 correct decisions on time per run (60% of its 118.8), 289 ms typical answer, never late. Good-move rate 59%.
 - **JevBench:** 86.1%. It loses most of its points on the hard questions.
 - **Shuffle test:** almost no position bias (4%), and the same pick in 86% of orders.
 
-**One game proves little.** Jev's answers vary slightly between calls. On the
-fifth piece of game 1, two spots score almost the same, and whichever Jev picks,
-the boards differ from then on. In four other six-board runs of game 1, besides
+**One run proves little.** Jev's answers vary slightly between calls. On the
+fifth piece of run 1, two spots score almost the same, and whichever Jev picks,
+the boards differ from then on. In four other six-board plays of run 1, besides
 the published one, it placed 123, 98, 123 and 95 pieces, with nothing changed
-between runs. Always compare averages
-over several games.
+in between. Always compare averages over several runs.
 
 ## Cloudflare Clef
 
 **Verdict: the best judgement of the fast models, but a little slower than Jev.**
 
-- **Tetris:** 69.3 pieces placed per game, 438 ms typical answer, fewer than 1% late. Good-move rate 48%.
+- **Tetris:** 34.3 correct decisions on time per run (49% of its 69.8), 438 ms typical answer, 1% late. Good-move rate 48%.
 - **JevBench:** 87.9%, the best of the decision models.
 - **Shuffle test:** the same pick in every order (100%), and a 75% good-move rate, the highest of any model there.
 
-**Why it places fewer pieces than Jev.** About 150 ms more per answer. As the
+**Why it makes fewer correct decisions than Jev.** About 150 ms more per answer. As the
 game speeds up, that leaves less margin before each piece lands.
 
 **Could we host it ourselves?** Yes. The weights are on Hugging Face under Apache
 2.0, and Cloudflare's SGLang image (`lmsysorg/sglang:dev-clef`) serves the same
 API, so it would plug in unchanged. At 27B it needs about 54 GB, more than our
 A10G: an 80 GB GPU, or an 8-bit build on a 48 GB L40S. Clef-flash (9B, about 18 GB)
-fits a 24–48 GB GPU. On Workers AI a whole game costs about $0.03, so
+fits a 24–48 GB GPU. On Workers AI a whole run costs about $0.03, so
 self-hosting only pays off for privacy, or to measure Clef without the network.
 
 ## The language models
 
 **Verdict: the best choices, but too slow for falling pieces.**
 
-- **Tetris:** GPT-6.1 Sol placed 23.3 pieces per game with a 2.04 s typical
-  answer (13% late); Claude Opus 5.5 placed 9.5 with 5.14 s (46% late).
+- **Tetris:** GPT-6.1 Sol made 17.3 correct decisions on time per run with a
+  2.04 s typical answer (13% late); Claude Opus 5.5 made 8.3 with 5.14 s (46% late).
+  Their boards filled up early, so each made far fewer decisions than Jev.
 - **Good-move rate:** 72% and 79%, the highest of all six.
 - **JevBench:** 99.6% each.
 
-**With the game paused** (the 2026-10-28 round), every answer counts, and they
+**When the game waits for them** (the Paused runs of 2026-10-28), every answer counts, and they
 lead: Opus 78% and GPT 69% good moves, against Jev's 50%
-([results](results.md#paused-and-live-games-four-models)).
+([results](results.md#paused-and-live-runs-four-models)).
 
 ## Strands Decider
 
 **Verdict: a solid small model on text, but too unsure to play Tetris.**
 
-- **Tetris:** 21.0 pieces placed per game. Almost every answer was on time (1% late), but its boards filled up within 15–25 seconds. Good-move rate 15%.
+- **Tetris:** 3.3 correct decisions on time per run (15% of its 21.3). Almost every answer was on time (1% late), but its boards filled up within 15–25 seconds. Good-move rate 15%.
 - **JevBench:** 77.9%, in line with its own published 72–76%.
 - **Confidence:** 5–17% on almost every move, barely above the 3% of a random pick among 34.
 
@@ -144,7 +144,7 @@ classification it is built for.
 
 **Verdict: it can't rank options by the numbers in them, so the order of the list decides. It is not a setup problem.**
 
-- **Tetris:** 20.5 pieces placed per game, never late, but its boards filled up early. Good-move rate 7%.
+- **Tetris:** 1.5 correct decisions on time per run (7% of its 20.5), never late, but its boards filled up early. Good-move rate 7%.
 - **JevBench:** 53.7%, the lowest of the six.
 - **Shuffle test:** picks one of the first two options 42% of the time (chance is about 7%), and changes its answer when only the order changes.
 
@@ -181,16 +181,16 @@ The whole investigation, 9–17 October, cost about $14 at list prices (the AWS 
 | **Total** | **about $14** |
 
 Opus is half of it: the highest price per token, and the most tokens per move.
-The four benchmark games cost $1.64 in model calls, and the JevBench pass $2.85.
+The four benchmark runs cost $1.64 in model calls, and the JevBench pass $2.85.
 
 What we learned deploying Laya and Strands Decider is in [self-hosting](self-hosting.md#lessons-from-deploying).
 
 ## Limits of these results
 
-- Four games is a small sample. Read the Tetris results as a ranking, not exact numbers. JevBench is one pass per model.
+- Four runs is a small sample. Read the Tetris results as a ranking, not exact numbers. JevBench is one pass per model.
 - Answer times include the network from India to the US (about 0.2–0.3 s).
 - JevBench is independent and MIT-licensed, but it is designed around Jev's API, so Jev-class models are its natural audience.
-- Next: one fresh round with every model in both modes, more games for error bars, and a fine-tuned Laya measured as a separate model.
+- Next: one fresh round with every model in both modes, more runs for error bars, and a fine-tuned Laya measured as a separate model.
 
 ## Sources
 

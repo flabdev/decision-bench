@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="336" viewBox="0 0 1000 336" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif" role="img" aria-label="Decisions per live run, split into correct and on time, other move, and too late">
+<rect width="1000" height="336" rx="8" fill="#1a1a19"/>
+<text x="24" y="40" font-size="22" font-weight="600" fill="#f0efec">Decisions per run: on time and correct</text>
+<text x="24" y="66" font-size="14" fill="#898781">Green arrived on time, red too late. Time to answer: 19.5 s at the start, down to 500 ms.</text>
+<rect x="24" y="89" width="12" height="12" rx="3" fill="#3fb36d"/>
+<text x="44" y="101" font-size="14" fill="#c3c2b7">On time, correct</text>
+<rect x="195.2" y="89" width="12" height="12" rx="3" fill="#2a5a40"/>
+<text x="215.2" y="101" font-size="14" fill="#c3c2b7">On time, other move</text>
+<rect x="389.5" y="89" width="12" height="12" rx="3" fill="#f06a64"/>
+<text x="409.5" y="101" font-size="14" fill="#c3c2b7">Too late</text>
+<line x1="188" y1="128" x2="188" y2="294" stroke="#383835" stroke-width="1"/>
+<text x="170" y="153" font-size="15" text-anchor="end" fill="#f0efec">Jev</text>
+<rect x="188.0" y="136" width="236.7" height="24" fill="#3fb36d"><title>Jev: 48 on time, correct per run (55%)</title></rect>
+<rect x="426.7" y="136" width="192.3" height="24" fill="#2a5a40"><title>Jev: 38.7 on time, other move per run (45%)</title></rect>
+<text x="627.0" y="153" font-size="14" fill="#c3c2b7">100% on time · 55% correct · 87 decisions</text>
+<text x="170" y="195" font-size="15" text-anchor="end" fill="#f0efec">Claude Haiku 5.5</text>
+<rect x="188.0" y="178" width="142.2" height="24" fill="#3fb36d"><title>Claude Haiku 5.5: 29 on time, correct per run (61%)</title></rect>
+<rect x="332.2" y="178" width="82.5" height="24" fill="#2a5a40"><title>Claude Haiku 5.5: 17 on time, other move per run (36%)</title></rect>
+<rect x="416.8" y="178" width="8.3" height="24" fill="#f06a64"><title>Claude Haiku 5.5: 1.7 too late per run (3%)</title></rect>
+<text x="433.1" y="195" font-size="14" fill="#c3c2b7">97% on time · 61% correct · 48 decisions</text>
+<text x="170" y="237" font-size="15" text-anchor="end" fill="#f0efec">GPT-6.1 Sol</text>
+<rect x="188.0" y="220" width="80.9" height="24" fill="#3fb36d"><title>GPT-6.1 Sol: 16.7 on time, correct per run (54%)</title></rect>
+<rect x="270.9" y="220" width="19.6" height="24" fill="#2a5a40"><title>GPT-6.1 Sol: 4.3 on time, other move per run (14%)</title></rect>
+<rect x="292.4" y="220" width="48.1" height="24" fill="#f06a64"><title>GPT-6.1 Sol: 9.7 too late per run (32%)</title></rect>
+<text x="348.5" y="237" font-size="14" fill="#c3c2b7">68% on time · 54% correct · 31 decisions</text>
+<text x="170" y="279" font-size="15" text-anchor="end" fill="#f0efec">Claude Opus 5.5</text>
+<rect x="188.0" y="262" width="51.0" height="24" fill="#3fb36d"><title>Claude Opus 5.5: 10.7 on time, correct per run (46%)</title></rect>
+<rect x="241.0" y="262" width="7.9" height="24" fill="#2a5a40"><title>Claude Opus 5.5: 2 on time, other move per run (9%)</title></rect>
+<rect x="251.0" y="262" width="53.0" height="24" fill="#f06a64"><title>Claude Opus 5.5: 10.7 too late per run (46%)</title></rect>
+<text x="312.0" y="279" font-size="14" fill="#c3c2b7">54% on time · 46% correct · 23 decisions</text>
+<text x="24" y="318" font-size="13" fill="#898781">Deadline Tetris · 3 Live runs, up to 2 minutes each · 3 Paused runs, 40 pieces each · no error bars yet</text>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif" role="img" aria-label="Decisions per live run, split into correct and on time, other move, and too late">
+<rect width="1000" height="420" rx="8" fill="#1a1a19"/>
+<text x="24" y="40" font-size="22" font-weight="600" fill="#f0efec">Decisions per run: on time and correct</text>
+<text x="24" y="66" font-size="14" fill="#898781">Green arrived on time, red too late. Time to answer: 19.5 s at the start, down to 500 ms.</text>
+<rect x="24" y="89" width="12" height="12" rx="3" fill="#3fb36d"/>
+<text x="44" y="101" font-size="14" fill="#c3c2b7">On time, correct</text>
+<rect x="195.2" y="89" width="12" height="12" rx="3" fill="#2a5a40"/>
+<text x="215.2" y="101" font-size="14" fill="#c3c2b7">On time, other move</text>
+<rect x="389.5" y="89" width="12" height="12" rx="3" fill="#f06a64"/>
+<text x="409.5" y="101" font-size="14" fill="#c3c2b7">Too late</text>
+<line x1="188" y1="128" x2="188" y2="378" stroke="#383835" stroke-width="1"/>
+<text x="170" y="153" font-size="15" text-anchor="end" fill="#f0efec">Jev</text>
+<rect x="188.0" y="136" width="250.0" height="24" fill="#3fb36d"><title>Jev: 70.8 on time, correct per run (60%)</title></rect>
+<rect x="440.0" y="136" width="171.0" height="24" fill="#2a5a40"><title>Jev: 48 on time, other move per run (40%)</title></rect>
+<text x="619.0" y="153" font-size="14" fill="#c3c2b7">100% on time · 60% correct · 119 decisions</text>
+<text x="170" y="195" font-size="15" text-anchor="end" fill="#f0efec">Cloudflare Clef</text>
+<rect x="188.0" y="178" width="120.0" height="24" fill="#3fb36d"><title>Cloudflare Clef: 34.3 on time, correct per run (49%)</title></rect>
+<rect x="310.0" y="178" width="122.7" height="24" fill="#2a5a40"><title>Cloudflare Clef: 35 on time, other move per run (50%)</title></rect>
+<rect x="434.7" y="178" width="1.8" height="24" fill="#f06a64"><title>Cloudflare Clef: 0.5 too late per run (1%)</title></rect>
+<text x="444.5" y="195" font-size="14" fill="#c3c2b7">99% on time · 49% correct · 70 decisions</text>
+<text x="170" y="237" font-size="15" text-anchor="end" fill="#f0efec">GPT-6.1 Sol</text>
+<rect x="188.0" y="220" width="59.4" height="24" fill="#3fb36d"><title>GPT-6.1 Sol: 17.3 on time, correct per run (64%)</title></rect>
+<rect x="249.4" y="220" width="19.4" height="24" fill="#2a5a40"><title>GPT-6.1 Sol: 6 on time, other move per run (22%)</title></rect>
+<rect x="270.8" y="220" width="12.5" height="24" fill="#f06a64"><title>GPT-6.1 Sol: 3.5 too late per run (13%)</title></rect>
+<text x="291.3" y="237" font-size="14" fill="#c3c2b7">87% on time · 64% correct · 27 decisions</text>
+<text x="170" y="279" font-size="15" text-anchor="end" fill="#f0efec">Claude Opus 5.5</text>
+<rect x="188.0" y="262" width="27.4" height="24" fill="#3fb36d"><title>Claude Opus 5.5: 8.3 on time, correct per run (46%)</title></rect>
+<rect x="217.4" y="262" width="2.5" height="24" fill="#2a5a40"><title>Claude Opus 5.5: 1.3 on time, other move per run (7%)</title></rect>
+<rect x="221.8" y="262" width="29.4" height="24" fill="#f06a64"><title>Claude Opus 5.5: 8.3 too late per run (46%)</title></rect>
+<text x="259.2" y="279" font-size="14" fill="#c3c2b7">54% on time · 46% correct · 18 decisions</text>
+<text x="170" y="321" font-size="15" text-anchor="end" fill="#f0efec">Strands Decider</text>
+<rect x="188.0" y="304" width="9.6" height="24" fill="#3fb36d"><title>Strands Decider: 3.3 on time, correct per run (15%)</title></rect>
+<rect x="199.6" y="304" width="61.2" height="24" fill="#2a5a40"><title>Strands Decider: 17.8 on time, other move per run (84%)</title></rect>
+<rect x="262.8" y="304" width="1.0" height="24" fill="#f06a64"><title>Strands Decider: 0.3 too late per run (1%)</title></rect>
+<text x="271.7" y="321" font-size="14" fill="#c3c2b7">99% on time · 15% correct · 21 decisions</text>
+<text x="170" y="363" font-size="15" text-anchor="end" fill="#f0efec">Laya</text>
+<rect x="188.0" y="346" width="3.3" height="24" fill="#3fb36d"><title>Laya: 1.5 on time, correct per run (7%)</title></rect>
+<rect x="193.3" y="346" width="67.7" height="24" fill="#2a5a40"><title>Laya: 19 on time, other move per run (93%)</title></rect>
+<text x="269.0" y="363" font-size="14" fill="#c3c2b7">100% on time · 7% correct · 21 decisions</text>
+<text x="24" y="402" font-size="13" fill="#898781">Deadline Tetris · 4 Live runs, up to 10 minutes each · no error bars yet</text>
+</svg>

@@ -305,8 +305,6 @@ already exists. It measures how LLM orchestrators delegate sub-tasks
 different topic, but searches for the name will find both. The Hugging Face
 org name is taken, so any datasets we host there need another name.
 
-Development up to v0.1.0 happened in `jagadeeswara-reddy-p/jev-demos`, which keeps the full history; this repo starts fresh at v0.1.0.
-
 ### Website
 
 One static site, deployed to GitHub Pages from the main repo by a GitHub
