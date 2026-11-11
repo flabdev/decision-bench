@@ -139,7 +139,7 @@ describe("renderChart", () => {
   test("each part is its own svg, with role img and its own title", () => {
     const parts: [ChartPart, string][] = [
       ["choices", "Quality vs speed"],
-      ["decisions", "Right decision, on time"],
+      ["decisions", "Decisions per run: on time and correct"],
     ];
     for (const [part, title] of parts) {
       const svg = renderChart(fixture(), "light", part);

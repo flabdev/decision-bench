@@ -94,8 +94,8 @@ const HEADINGS: Record<ChartPart, { title: string; sub: string; aria: string }> 
     aria: "Good-move rate against typical answer time, one mark per model",
   },
   decisions: {
-    title: "Right decision, on time",
-    sub: "Who meets the deadline? Green arrived on time, red too late.",
+    title: "Decisions per run: on time and correct",
+    sub: "Green arrived on time, red too late.",
     aria: "Decisions per live run, split into correct and on time, other move, and too late",
   },
 };

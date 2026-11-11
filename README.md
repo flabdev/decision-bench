@@ -20,7 +20,7 @@ The first **environment** (a game every model plays under the same rules) is **D
   <img alt="Good-move rate against typical answer time, one mark per model" src="docs/media/results-choices-light.svg">
 </picture>
 
-### Right decision, on time
+<br>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/media/results-decisions-dark.svg">

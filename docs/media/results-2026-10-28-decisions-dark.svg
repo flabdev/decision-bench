@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="336" viewBox="0 0 1000 336" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif" role="img" aria-label="Decisions per live run, split into correct and on time, other move, and too late">
 <rect width="1000" height="336" rx="8" fill="#1a1a19"/>
-<text x="24" y="40" font-size="22" font-weight="600" fill="#f0efec">Right decision, on time</text>
-<text x="24" y="66" font-size="14" fill="#898781">Who meets the deadline? Green arrived on time, red too late. Time to answer: 19.5 s at the start, down to 500 ms.</text>
+<text x="24" y="40" font-size="22" font-weight="600" fill="#f0efec">Decisions per run: on time and correct</text>
+<text x="24" y="66" font-size="14" fill="#898781">Green arrived on time, red too late. Time to answer: 19.5 s at the start, down to 500 ms.</text>
 <rect x="24" y="89" width="12" height="12" rx="3" fill="#3fb36d"/>
 <text x="44" y="101" font-size="14" fill="#c3c2b7">On time, correct</text>
 <rect x="195.2" y="89" width="12" height="12" rx="3" fill="#2a5a40"/>

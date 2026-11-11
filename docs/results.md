@@ -39,7 +39,7 @@ Run with `bun bench` on 2026-10-28. Each model played 3 Paused runs of 40 pieces
   <img alt="Good-move rate against typical answer time, one mark per model" src="media/results-2026-10-28-choices-light.svg">
 </picture>
 
-### Right decision, on time
+<br>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="media/results-2026-10-28-decisions-dark.svg">
