@@ -11,8 +11,6 @@ The first **environment** (a game every model plays under the same rules) is **D
 
 [![Six models playing Deadline Tetris](docs/media/demo-six-models.gif)](docs/media/demo-six-models.mp4)
 
-*Six models play the same pieces side by side, sped up 6×. Click for the video.*
-
 ## Results
 
 <picture>
@@ -25,7 +23,7 @@ The first **environment** (a game every model plays under the same rules) is **D
   <img alt="Pieces placed in time per live game, one bar per model" src="docs/media/results-pieces-light.svg">
 </picture>
 
-**Jev is the only model that is both fast and accurate, so it places the most pieces.** The language models choose well but answer too slowly. The small open decision models answer fast but choose poorly.
+**Jev is the only model that is both fast and accurate, so it places the most pieces.** The language models choose well but answer too slowly. Laya and Strands Decider answer fast but choose poorly.
 
 <details>
 <summary>Full numbers and what they mean</summary>
@@ -57,7 +55,7 @@ bun bench chart benchmarks/2026-10-17/tetris --out docs/media/results
 bun run stats benchmarks/2026-10-17/tetris/*.jsonl
 ```
 
-Other rounds, including Claude Haiku 5.5, are in the [results history](docs/results-history.md). Why each model scores the way it does is in [findings](docs/findings.md).
+More results, including Claude Haiku 5.5, are on the [results page](docs/results.md). Why each model scores the way it does is in [findings](docs/findings.md).
 
 ## How the environment works
 
@@ -116,7 +114,7 @@ The design is in [docs/design/eval-engine.md](docs/design/eval-engine.md).
 |---|---|
 | [How it works](docs/how-it-works.md) | Rules, timings, the prompt, how answers are judged |
 | [Findings](docs/findings.md) | Why each model scores the way it does |
-| [Results history](docs/results-history.md) | Every round, including JevBench |
+| [Results](docs/results.md) | Every published result, including JevBench |
 | [bun bench](docs/bench.md) | Every command and `bench.yaml` setting |
 | [Models](docs/models.md) | Adding a model or writing an adapter |
 | [Configuration](docs/configuration.md) | Keys, prices and server settings |

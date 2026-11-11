@@ -117,7 +117,7 @@ self-hosting only pays off for privacy, or to measure Clef without the network.
 
 **With the game paused** (the 2026-10-28 round), every answer counts, and they
 lead: Opus 78% and GPT 69% good moves, against Jev's 50%
-([results history](results-history.md#2026-10-28-paused-and-live-four-models)).
+([results](results.md#paused-and-live-games-four-models)).
 
 ## Strands Decider
 
