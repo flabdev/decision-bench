@@ -1,6 +1,6 @@
 {
   "name": "decision-bench",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Can a model make a good decision fast enough to act on it? Benchmarks models in games where the clock keeps running while they think.",
   "repository": {

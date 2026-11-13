@@ -135,13 +135,13 @@ If you use decision-bench, please cite it:
 @software{fission2026decisionbench,
   author  = {{Fission Engineering}},
   title   = {decision-bench},
-  version = {0.1.0},
+  version = {0.2.0},
   year    = {2026},
   url     = {https://github.com/flabdev/decision-bench}
 }
 ```
 
-Fission Engineering (2026). *decision-bench* (version 0.1.0). https://github.com/flabdev/decision-bench
+Fission Engineering (2026). *decision-bench* (version 0.2.0). https://github.com/flabdev/decision-bench
 
 The same details are in [CITATION.cff](CITATION.cff), which also feeds GitHub's "Cite this repository" button.
 
