@@ -4,7 +4,7 @@ type: software
 title: decision-bench
 authors:
   - name: Fission Engineering
-version: 0.1.0
-date-released: 2026-10-28
+version: 0.2.0
+date-released: 2026-11-13
 license: MIT
 repository-code: "https://github.com/flabdev/decision-bench"
